@@ -1,16 +1,48 @@
+using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class PlayerInput : MonoBehaviour
+public class PlayerInput : MonoBehaviour, PlayerControls.IMovementActions
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public PlayerControls PlayerControls { get; private set; }
+    
+    public float HorizontalMovementInput { get; private set; }
+    private void OnEnable()
     {
-        
+        EnableInput();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnDisable()
     {
+        DisableInput();
+    }
+
+    private void Update()
+    {
+        print(HorizontalMovementInput);
+    }
+
+    void EnableInput()
+    {
+        PlayerControls = new PlayerControls();
+        PlayerControls.Enable();
+
+        PlayerControls.Movement.Enable();
+        PlayerControls.Movement.SetCallbacks(this);
+    }
+
+    
+    void DisableInput()
+    {
+        PlayerControls.Movement.Disable();
+        PlayerControls.Movement.RemoveCallbacks(this);
         
+        PlayerControls.Dispose();
+        PlayerControls = null;
+    }
+
+    public void OnSideMovement(InputAction.CallbackContext context)
+    {
+        HorizontalMovementInput = context.ReadValue<float>();
     }
 }
