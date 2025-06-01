@@ -63,3 +63,7 @@ crashlytics-build.properties
 
 
 *.dwlt
+
+UserSettings/
+
+.idea/.idea.Skyroads - Remake/.idea/
