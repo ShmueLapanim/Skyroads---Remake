@@ -697,8 +697,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47873b1b7c895cb4b8c80f264e7f8350, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _horizontalSpeed: 10
-  _horizontalAcceleration: 50
+  _horizontalSpeed: 8
+  _horizontalAcceleration: 40
+  _jumpHeight: 2
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
