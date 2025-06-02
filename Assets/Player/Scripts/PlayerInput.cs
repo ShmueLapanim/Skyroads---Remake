@@ -5,8 +5,9 @@ using UnityEngine.InputSystem;
 public class PlayerInput : MonoBehaviour, PlayerControls.IMovementActions
 {
     public PlayerControls PlayerControls { get; private set; }
-    
     public float HorizontalMovementInput { get; private set; }
+    public bool JumpPressed { get; private set; } // will be reset to false after we jump in PlayerMovement script
+    
     private void OnEnable()
     {
         EnableInput();
@@ -19,9 +20,10 @@ public class PlayerInput : MonoBehaviour, PlayerControls.IMovementActions
 
     private void Update()
     {
-        print(HorizontalMovementInput);
+        print(JumpPressed);
     }
 
+    
     void EnableInput()
     {
         PlayerControls = new PlayerControls();
@@ -30,7 +32,6 @@ public class PlayerInput : MonoBehaviour, PlayerControls.IMovementActions
         PlayerControls.Movement.Enable();
         PlayerControls.Movement.SetCallbacks(this);
     }
-
     
     void DisableInput()
     {
@@ -41,8 +42,21 @@ public class PlayerInput : MonoBehaviour, PlayerControls.IMovementActions
         PlayerControls = null;
     }
 
+   
+
     public void OnSideMovement(InputAction.CallbackContext context)
     {
         HorizontalMovementInput = context.ReadValue<float>();
+    }
+
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            JumpPressed = true;
+    }
+    
+    public void ResetJumpInput()
+    {
+        JumpPressed = false;
     }
 }
