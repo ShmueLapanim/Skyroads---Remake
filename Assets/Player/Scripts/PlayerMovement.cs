@@ -7,15 +7,24 @@ public class PlayerMovement : MonoBehaviour
     private PlayerInput _playerInput;
     private Rigidbody _rb;
     
-    [Header("Horizontal Movement")]
+    [Header("Horizontal Movement Settings")]
     [SerializeField] float _horizontalSpeed;
     [SerializeField] float _horizontalAcceleration;
     
-    [Header("Vertical Movement")]
+    [Header("Vertical Movement Settings")]
     [SerializeField] float _jumpHeight;
     [SerializeField] float _jumpBufferTime;
     
+    [Header("Forward Movement Settings")]
+    [SerializeField] float _forwardSpeed;
+    
+    [Header("Ground Alignment Settings")]
+    [SerializeField] float _heightFromGround;
+    [SerializeField] float _distanceSmothing;
+    [SerializeField] float _rotationSmoothing;
+    
     private bool _canJump;
+    private bool _alignToGround = true;
 
     void Start()
     {
@@ -32,8 +41,10 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         JumpBuffer();
+        ForwardMovement();
     }
 
+    #region Horizontal Movement
     void HorizontalMovement()
     {
         float moveDirection = _playerInput.HorizontalMovementInput;
@@ -45,9 +56,16 @@ public class PlayerMovement : MonoBehaviour
         _rb.linearVelocity = targetVelocity;
     }
 
+    #endregion
+    
+    #region Jumping
+    
     void JumpBehavior()
     {
         if (!CanJump()) return;
+        
+        _canJump = false;
+        _alignToGround = false;
         
         Vector3 targetVelocity = _rb.linearVelocity;
         targetVelocity.y = Mathf.Sqrt(_jumpHeight * 2.1f * -Physics.gravity.y);
@@ -56,7 +74,12 @@ public class PlayerMovement : MonoBehaviour
 
     bool CanJump() //grounded + jump buffer
     {
-        return Physics.Raycast(transform.position, -Vector3.up, 0.6f) && _canJump;
+        return IsGrounded() && _canJump;
+    }
+
+    bool IsGrounded()
+    {
+        return Physics.Raycast(transform.position, Vector3.down, 0.6f + _heightFromGround);
     }
 
     void JumpBuffer()
@@ -78,4 +101,27 @@ public class PlayerMovement : MonoBehaviour
         yield return new WaitForSeconds(_jumpBufferTime);
         _canJump = false;
     }
+    
+    #endregion
+    
+    #region Forward Movement
+
+    void ForwardMovement()
+    {
+        if (!_alignToGround) return;
+        
+        Vector3 targetVelocity = _rb.linearVelocity;
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 10f))
+        {
+            float distanceToGround = Vector3.Distance(transform.position, hit.point);
+            
+            targetVelocity.y = (_heightFromGround - distanceToGround) * _distanceSmothing;
+        }
+
+        targetVelocity.z = _forwardSpeed;
+        _rb.linearVelocity = targetVelocity;
+    }
+    
+    #endregion
 }
