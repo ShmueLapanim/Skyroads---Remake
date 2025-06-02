@@ -2,11 +2,12 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[DefaultExecutionOrder(-1)]
 public class PlayerInput : MonoBehaviour, PlayerControls.IMovementActions
 {
     public PlayerControls PlayerControls { get; private set; }
     public float HorizontalMovementInput { get; private set; }
-    public bool JumpPressed { get; private set; } // will be reset to false after we jump in PlayerMovement script
+    public bool JumpPressed { get; private set; }
     
     private void OnEnable()
     {
@@ -23,7 +24,12 @@ public class PlayerInput : MonoBehaviour, PlayerControls.IMovementActions
         print(JumpPressed);
     }
 
-    
+    private void LateUpdate()
+    {
+        JumpPressed = false;
+    }
+
+
     void EnableInput()
     {
         PlayerControls = new PlayerControls();
@@ -53,10 +59,5 @@ public class PlayerInput : MonoBehaviour, PlayerControls.IMovementActions
     {
         if (context.performed)
             JumpPressed = true;
-    }
-    
-    public void ResetJumpInput()
-    {
-        JumpPressed = false;
     }
 }

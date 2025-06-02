@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -12,8 +13,9 @@ public class PlayerMovement : MonoBehaviour
     
     [Header("Vertical Movement")]
     [SerializeField] float _jumpHeight;
+    [SerializeField] float _jumpBufferTime;
     
-    
+    private bool _canJump;
 
     void Start()
     {
@@ -25,6 +27,11 @@ public class PlayerMovement : MonoBehaviour
     {
         HorizontalMovement();
         JumpBehavior();
+    }
+
+    private void Update()
+    {
+        JumpBuffer();
     }
 
     void HorizontalMovement()
@@ -40,18 +47,35 @@ public class PlayerMovement : MonoBehaviour
 
     void JumpBehavior()
     {
-        if (_playerInput.JumpPressed && IsGrounded())
-        {
-            Vector3 targetVelocity = _rb.linearVelocity;
-            targetVelocity.y = Mathf.Sqrt(_jumpHeight * 2.1f * -Physics.gravity.y);
-            _rb.linearVelocity = targetVelocity;
-            
-            _playerInput.ResetJumpInput();
-        }
+        if (!CanJump()) return;
+        
+        Vector3 targetVelocity = _rb.linearVelocity;
+        targetVelocity.y = Mathf.Sqrt(_jumpHeight * 2.1f * -Physics.gravity.y);
+        _rb.linearVelocity += targetVelocity;
     }
 
-    bool IsGrounded()
+    bool CanJump() //grounded + jump buffer
     {
-        return Physics.Raycast(transform.position, -Vector3.up, 0.6f);
+        return Physics.Raycast(transform.position, -Vector3.up, 0.6f) && _canJump;
+    }
+
+    void JumpBuffer()
+    {
+        if (!_playerInput.JumpPressed || _canJump) return;
+        
+        _canJump = true;
+            
+        if(_jumpBufferCoroutine != null)
+            StopCoroutine(_jumpBufferCoroutine);
+            
+        _jumpBufferCoroutine = StartCoroutine(JumpBufferCoroutine());
+    }
+
+    
+    Coroutine _jumpBufferCoroutine;
+    IEnumerator JumpBufferCoroutine()
+    {
+        yield return new WaitForSeconds(_jumpBufferTime);
+        _canJump = false;
     }
 }
