@@ -209,7 +209,7 @@ public class PlayerController : MonoBehaviour
         {
             // Face movement direction in air
             Vector3 lookDirection = new Vector3(0, _rb.linearVelocity.y, _rb.linearVelocity.z);
-            baseRotation = Quaternion.LookRotation(lookDirection.normalized + transform.forward * 2f);
+            baseRotation = Quaternion.LookRotation(lookDirection.normalized + transform.forward);
         }
 
         // Extract baseRotation's Euler angles
