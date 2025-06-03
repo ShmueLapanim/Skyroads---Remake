@@ -21,11 +21,12 @@ public class PlayerController : MonoBehaviour
     
     [Header("Forward Movement Settings")]
     [SerializeField] float _forwardSpeed;
+    [SerializeField] float _forwardAcceleration;
     
     [Header("Ground Alignment Settings")]
     [SerializeField] float _heightFromGround;
-    [SerializeField] float _distanceSmothing;
-    [SerializeField] float _distanceDamping;
+    [SerializeField] float _distanceSpringStrength;
+    [SerializeField] float _distanceSpringDamping;
     [SerializeField] float _rotationSmoothing;
     
     private bool _canJump;
@@ -41,8 +42,8 @@ public class PlayerController : MonoBehaviour
     {
         HorizontalMovement();
         ForwardMovement();
-        GroundAlignment();
-        TurningRotation();
+        GroundAlignment2();
+        HandleRotation();
         JumpBehavior();
         ApplyGravity();
     }
@@ -65,13 +66,6 @@ public class PlayerController : MonoBehaviour
         _rb.linearVelocity = targetVelocity;
     }
 
-    void TurningRotation()
-    {
-        float targetRotationZ = -_playerInput.HorizontalMovementInput * _turningAngle;
-        
-        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(transform.rotation.x, transform.rotation.y, targetRotationZ), _turningSpeed * Time.fixedDeltaTime);
-    }
-
     #endregion
     
     #region Jumping
@@ -84,7 +78,7 @@ public class PlayerController : MonoBehaviour
         _alignToGround = false;
         
         Vector3 jumpVel = _rb.linearVelocity;
-        jumpVel.y = Mathf.Sqrt(_jumpHeight * 4f * -Physics.gravity.y * _gravityMultiplier);
+        jumpVel.y = Mathf.Sqrt(_jumpHeight * 2.1f * -Physics.gravity.y * _gravityMultiplier);
         _rb.linearVelocity = jumpVel;
     }
 
@@ -140,39 +134,52 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 targetVelocity = _rb.linearVelocity;
         RaycastHit hit;
-        
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, _heightFromGround * 2f) && _alignToGround)
+
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, _heightFromGround + 1f) && _alignToGround)
         {
             // align on the y
             float distanceToGround = Vector3.Distance(transform.position, hit.point);
-            targetVelocity.y = (_heightFromGround - distanceToGround) * _distanceSmothing;
-            
-            // align the rotation
-            Quaternion slopeRotation = Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation;
-            slopeRotation.z = transform.rotation.z;
-            transform.rotation = Quaternion.Slerp(transform.rotation, slopeRotation, _rotationSmoothing * Time.fixedDeltaTime);
-            
+            targetVelocity.y = (_heightFromGround - distanceToGround) * _distanceSpringStrength;
+
             //smoothing the alignment on the y
             targetVelocity.x = _rb.linearVelocity.x;
             targetVelocity.z = _rb.linearVelocity.z;
-            _rb.linearVelocity = Vector3.Lerp(_rb.linearVelocity, targetVelocity, _distanceDamping * Time.fixedDeltaTime);
+            _rb.linearVelocity = Vector3.Lerp(_rb.linearVelocity, targetVelocity, _distanceSpringDamping * Time.fixedDeltaTime);
         }
-        else
-        {
-            Vector3 lookDirection = new Vector3(0, _rb.linearVelocity.y, _rb.linearVelocity.z);
-            Quaternion velRotation = Quaternion.LookRotation(lookDirection.normalized + transform.forward * 2f);
-            transform.rotation = Quaternion.Slerp(transform.rotation, velRotation, _rotationSmoothing * Time.fixedDeltaTime);
-        }
-        
-        
     }
-
+    
     void ForwardMovement()
     {
         Vector3 targetVelocity = _rb.linearVelocity;
         targetVelocity.z = _forwardSpeed;
-        _rb.linearVelocity = targetVelocity;
+        _rb.linearVelocity = Vector3.MoveTowards(_rb.linearVelocity, targetVelocity, _forwardAcceleration * Time.fixedDeltaTime);
     }
+    void GroundAlignment2()
+    {
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, _heightFromGround + 1f) && _alignToGround)
+        {
+            float currentY = transform.position.y;
+            float targetY = hit.point.y + _heightFromGround;
+            float displacement = targetY - currentY;
+
+            // Apply spring force
+            float springForce = displacement * _distanceSpringStrength - _rb.linearVelocity.y * _distanceSpringDamping;
+
+            Vector3 targetVelocity = _rb.linearVelocity;
+            targetVelocity.y += springForce;
+
+            _rb.linearVelocity = targetVelocity;
+        }
+        else
+        {
+            _alignToGround = false;
+        }
+    }
+
+
+    
 
     void CheckGroundAlignment()
     {
@@ -180,7 +187,7 @@ public class PlayerController : MonoBehaviour
         
         if(_rb.linearVelocity.y > 0) return;
 
-        if (Physics.Raycast(transform.position, Vector3.down, _heightFromGround))
+        if (Physics.Raycast(transform.position, Vector3.down, _heightFromGround + 1f))
         {
             _alignToGround = true;
         }
@@ -211,6 +218,7 @@ public class PlayerController : MonoBehaviour
         // Apply Z-axis tilt based on player input
         float targetZ = -_playerInput.HorizontalMovementInput * _turningAngle;
         euler.z = targetZ;
+        euler.y = 0f;
 
         // Apply final rotation
         Quaternion finalRotation = Quaternion.Euler(euler);
