@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float forwardAcceleration;
     
     [Header("Ground Alignment Settings")]
-    [SerializeField] private float groundHeight;
+    [SerializeField, Range(0.1f, 10f)] private float groundHeight;
     [SerializeField] private float groundSpringStrength;
     [SerializeField, Range(0f,1f)] private float groundSpringDamping;
     
