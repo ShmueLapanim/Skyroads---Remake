@@ -2591,19 +2591,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47873b1b7c895cb4b8c80f264e7f8350, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _horizontalSpeed: 8
-  _horizontalAcceleration: 40
-  _turningAngle: 20
-  _turningSpeed: 5
-  _gravityMultiplier: 3
-  _jumpHeight: 4
-  _jumpBufferTime: 0.1
-  _forwardSpeed: 8
-  _forwardAcceleration: 4
-  _heightFromGround: 1
-  _distanceSpringStrength: 4
-  _distanceSpringDamping: 0.4
-  _rotationSmoothing: 5
+  horizontalSpeed: 8
+  horizontalAcceleration: 40
+  gravityMultiplier: 3
+  jumpHeight: 4
+  jumpBufferTime: 0.1
+  forwardSpeed: 8
+  forwardAcceleration: 6
+  groundHeight: 1.5
+  groundSpringStrength: 6
+  groundSpringDamping: 0.302
+  rotationSpeed: 5
+  turningAngle: 20
+  airRotationBlend: 0.704
 --- !u!1 &1778763832
 GameObject:
   m_ObjectHideFlags: 0
