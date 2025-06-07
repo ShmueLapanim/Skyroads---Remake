@@ -14,9 +14,14 @@ public class PlayerController : MonoBehaviour
     private Rigidbody _rb;
     private Coroutine _jumpBufferCoroutine;
     
+    private float _currentGravity;
+    
     private bool _wantsToJump;
     private bool _alignToGround = true;
-    private bool _isGrounded;
+    private bool _isJumping = false;
+    private bool _isFalling = false;
+    private bool _isGrounded;// for testing
+    
 
     void Awake()
     {
@@ -28,15 +33,16 @@ public class PlayerController : MonoBehaviour
     {
         HandleJumpInput();
         CheckGroundStatus();
+        HandleVariableJump();
     }
 
     private void FixedUpdate()
     {
         HandleHorizontalMovement();
         ApplyForwardMovement();
-        GroundAlignment2();
         ApplyRotation();
         HandleJump();
+        GroundAlignment2();
         ApplyGravity();
     }
 
@@ -47,8 +53,13 @@ public class PlayerController : MonoBehaviour
     {
         float targetX = controllerSettings.horizontalSpeed * _input.HorizontalMovementInput;
         
+        bool isBraking = Mathf.Sign(_rb.linearVelocity.x) != Mathf.Sign(targetX);
+        isBraking = isBraking && targetX != 0 && _rb.linearVelocity.x != 0; //because 0 is considered positive we need to tak that into account
+        
+        float acceleration = isBraking ? 1.75f * controllerSettings.horizontalAcceleration : controllerSettings.horizontalAcceleration;
+        
         Vector3 targetVelocity = _rb.linearVelocity;
-        targetVelocity.x = Mathf.MoveTowards(targetVelocity.x, targetX, controllerSettings.horizontalAcceleration * Time.fixedDeltaTime);
+        targetVelocity.x = Mathf.MoveTowards(targetVelocity.x, targetX, acceleration * Time.fixedDeltaTime);
         
         _rb.linearVelocity = targetVelocity;
     }
@@ -86,19 +97,115 @@ public class PlayerController : MonoBehaviour
     {
         if (!IsGrounded() || !_wantsToJump) return;
         
+        _isJumping = true;
         _wantsToJump = false;
         _alignToGround = false;
         
         Vector3 jumpVel = _rb.linearVelocity;
-        jumpVel.y = Mathf.Sqrt(controllerSettings.jumpHeight * -2.1f * Physics.gravity.y * controllerSettings.gravityMultiplier);
+        jumpVel.y = Mathf.Sqrt(controllerSettings.jumpHeight * -2.1f * Physics.gravity.y * controllerSettings.gravity);
         _rb.linearVelocity = jumpVel;
+    }
+
+    void HandleVariableJump()
+    {
+        //is jumping is true when we started a jump al the way to where we land meaning that when we fall after the jump isJumping is true
+        // isFalling is only true when we fall after a jump
+        
+        float targetGravity = CalculateTargetGravity(_rb.linearVelocity.y, _input.JumpHeld);
+        _currentGravity = Mathf.MoveTowards(_currentGravity, targetGravity, controllerSettings.gravityChangeSpeed * Time.fixedDeltaTime);
+        
+        TryCutJump(_rb.linearVelocity.y, _input.JumpReleased);
+        
+        print(_currentGravity);
+        
+        /*float targetGravity;
+        if (!_isJumping)
+        {
+            targetGravity = controllerSettings.gravity;
+        }
+        else
+        {
+            if (!_input.JumpHeld)
+            {
+                // Released jump early → fall faster
+                targetGravity = controllerSettings.fallGravity;
+            }
+            else if (Mathf.Abs(_rb.linearVelocity.y) < controllerSettings.apexThreshold)
+            {
+                // Near apex → reduced gravity
+                targetGravity = controllerSettings.apexGravity;
+            }
+            else if (_rb.linearVelocity.y < 0)
+            {
+                // Falling after apex
+                targetGravity = controllerSettings.fallGravity;
+                _isFalling = true;
+            }
+            else
+            {
+                //Ascending with jump held
+                targetGravity = controllerSettings.gravity;
+            }
+        }
+        
+        // Smooth gravity transition
+        _currentGravity = Mathf.MoveTowards(_currentGravity, targetGravity, controllerSettings.gravityChangeSpeed * Time.fixedDeltaTime);
+
+        // Early jump release dampening (low jump)
+        if (!_isFalling && _input.JumpReleased && _rb.linearVelocity.y > controllerSettings.apexThreshold)
+        {
+            Vector3 jumpVel = _rb.linearVelocity;
+            jumpVel.y *= controllerSettings.jumpCutMultiplier;
+            _rb.linearVelocity = jumpVel;
+            _isFalling = true;
+            print("slowed down");
+        }
+        
+        print(_currentGravity);
+        */
+        
+    }
+    
+    private float CalculateTargetGravity(float velocityY, bool jumpHeld)
+    {
+        if (!_isJumping)
+            return controllerSettings.gravity;
+
+        if (!jumpHeld)
+            return controllerSettings.fallGravity;
+
+        if (Mathf.Abs(velocityY) < controllerSettings.apexThreshold)
+        {
+            _isFalling = true;
+            return controllerSettings.apexGravity;
+        }
+
+        if (velocityY < 0f)
+        {
+            _isFalling = true;
+            return controllerSettings.fallGravity;
+        }
+
+        return controllerSettings.gravity;
+    }
+    
+    private void TryCutJump(float velocityY, bool jumpReleased)
+    {
+        if (!_isFalling && jumpReleased && velocityY > controllerSettings.apexThreshold)
+        {
+            Vector3 jumpVel = _rb.linearVelocity;
+            jumpVel.y *= controllerSettings.jumpCutMultiplier;
+            _rb.linearVelocity = jumpVel;
+            _isFalling = true;
+            print("slowed down");
+        }
     }
     
     void ApplyGravity()
     {
         if(_alignToGround) return;
-        print("yay");
-        Vector3 gravity = controllerSettings.gravityMultiplier * Physics.gravity;
+        
+        Vector3 gravity = _currentGravity * Physics.gravity;
         
         _rb.linearVelocity += gravity * Time.fixedDeltaTime;
         
@@ -116,11 +223,13 @@ public class PlayerController : MonoBehaviour
 
     private void CheckGroundStatus()
     {
-        if (!_alignToGround && IsGrounded(0.5f) && _rb.linearVelocity.y <= 0f)
+        if (!_alignToGround && IsGrounded() && _rb.linearVelocity.y <= 0f)
         {
             _alignToGround = true;
+            _isJumping = false;
+            _isFalling = false;
         }
-        _isGrounded = IsGrounded();
+        _isGrounded = IsGrounded(); // testing purposes
     }
     
     void GroundAlignment()
@@ -145,7 +254,7 @@ public class PlayerController : MonoBehaviour
     {
         if(!_alignToGround) return;
 
-        if (IsGrounded(out RaycastHit hit, 0.5f))
+        if (IsGrounded(out RaycastHit hit))
         {
             float currentY = transform.position.y;
             float targetY = hit.point.y + controllerSettings.groundHeight;
@@ -244,9 +353,9 @@ public class PlayerController : MonoBehaviour
         Gizmos.matrix = Matrix4x4.TRS(end, orientation, Vector3.one);
         Gizmos.DrawWireCube(Vector3.zero, boxHalfExtents * 2f);
         
-        // Draw the ending box
+        // Draw the spring box
         Gizmos.color = Color.cyan;
-        Gizmos.matrix = Matrix4x4.TRS(end + new Vector3(0, -0.5f, 0), orientation, Vector3.one);
+        Gizmos.matrix = Matrix4x4.TRS(end, orientation, Vector3.one);
         Gizmos.DrawWireCube(Vector3.zero, boxHalfExtents * 2f);
 
         // Draw the line between start and end

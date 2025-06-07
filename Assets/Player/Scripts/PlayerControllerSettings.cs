@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 
 [CreateAssetMenu(fileName = "ControllerSettings", menuName = "Player/Controller Settings")]
@@ -12,11 +13,20 @@ public class PlayerControllerSettings : ScriptableObject
     public float forwardSpeed;
     public float forwardAcceleration;
     
-    [Header("Jump Settings")]
-    public float gravityMultiplier;
+    [Header("Gravity Settings")]
+    public float gravity;
     public float terminalVelocity;
+    
+    [Header("Jump Settings")]
     public float jumpHeight;
     public float jumpBufferTime;
+
+    [Header("Variable Jump Settings")] 
+    public float fallGravity;
+    public float apexGravity;
+    public float apexThreshold;
+    public float gravityChangeSpeed;
+    [Range(0f,1f)] public float jumpCutMultiplier;
 
     [Header("Ground Check Settings")] 
     public Vector3 centerOffset;

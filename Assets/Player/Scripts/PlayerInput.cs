@@ -8,6 +8,8 @@ public class PlayerInput : MonoBehaviour, PlayerControls.IMovementActions
     public PlayerControls PlayerControls { get; private set; }
     public float HorizontalMovementInput { get; private set; }
     public bool JumpPressed { get; private set; }
+    public bool JumpReleased { get; private set; }
+    public bool JumpHeld { get; private set; }
     
     private void OnEnable()
     {
@@ -22,8 +24,9 @@ public class PlayerInput : MonoBehaviour, PlayerControls.IMovementActions
     private void LateUpdate()
     {
         JumpPressed = false;
+        JumpReleased = false;
     }
-
+    
 
     void EnableInput()
     {
@@ -54,5 +57,10 @@ public class PlayerInput : MonoBehaviour, PlayerControls.IMovementActions
     {
         if (context.performed)
             JumpPressed = true;
+        
+        if(context.canceled)
+            JumpReleased = true;
+        
+        JumpHeld = context.performed;
     }
 }

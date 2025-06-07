@@ -15,16 +15,21 @@ MonoBehaviour:
   horizontalSpeed: 8
   horizontalAcceleration: 40
   forwardSpeed: 10
-  forwardAcceleration: 6
-  gravityMultiplier: 3
-  terminalVelocity: 30
-  jumpHeight: 4
+  forwardAcceleration: 6.75
+  gravity: 3
+  terminalVelocity: 20
+  jumpHeight: 5
   jumpBufferTime: 0.1
-  centerOffset: {x: 0, y: 0, z: -0.4}
-  halfExtents: {x: 0.4, y: 0.1, z: 0.4}
-  groundHeight: 0.75
-  groundSpringStrength: 5
-  groundSpringDamping: 0.3
+  fallGravity: 5
+  apexGravity: 1.5
+  apexThreshold: 3
+  gravityChangeSpeed: 5
+  jumpCutMultiplier: 0.709
+  centerOffset: {x: 0, y: 0, z: 0}
+  halfExtents: {x: 0.4, y: 0.2, z: 0.8}
+  groundHeight: 1
+  groundSpringStrength: 6
+  groundSpringDamping: 0.27
   rotationSpeed: 6
   turningAngle: 30
-  airRotationBlend: 0.25
+  airRotationBlend: 0.116
