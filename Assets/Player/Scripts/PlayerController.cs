@@ -30,6 +30,9 @@ public class PlayerController : MonoBehaviour
         _input = GetComponent<PlayerInput>();
         _rb = GetComponent<Rigidbody>();
         _collider = GetComponentInChildren<BoxCollider>();
+        
+        if(_collider == null)
+            Debug.LogError("No child box collider attached");
     }
     
     private void Update()
@@ -44,9 +47,9 @@ public class PlayerController : MonoBehaviour
         HandleHorizontalMovement();
         ApplyForwardMovement();
         ApplyRotation();
-        HandleJump();
         GroundAlignment2();
         ApplyGravity();
+        HandleJump();
     }
 
     
@@ -98,14 +101,20 @@ public class PlayerController : MonoBehaviour
 
     void HandleJump()
     {
-        if (!IsGrounded() || !_wantsToJump) return;
+        if (!IsGrounded(out RaycastHit hit) || !_wantsToJump) return;
         
         _isJumping = true;
         _wantsToJump = false;
         _alignToGround = false;
         
+        //compensate if we are not in the desired height
+        float yCorrection = controllerSettings.groundHeight - (transform.position.y - hit.point.y);
+        
+        // reset the gravity so the jump height will be correct
+        _currentGravity = controllerSettings.gravity;
+        
         Vector3 jumpVel = _rb.linearVelocity;
-        jumpVel.y = Mathf.Sqrt(controllerSettings.jumpHeight * -2.1f * Physics.gravity.y * controllerSettings.gravity);
+        jumpVel.y = Mathf.Sqrt((controllerSettings.jumpHeight + yCorrection) * -2f * Physics.gravity.y * controllerSettings.gravity);
         _rb.linearVelocity = jumpVel;
     }
 
@@ -280,9 +289,6 @@ public class PlayerController : MonoBehaviour
         {
             _alignToGround = false;
         }
-        
-        print(_springForceModifier);
-       
     }
     
     private bool IsGrounded(out RaycastHit hit, float extraDistance = 0f)
