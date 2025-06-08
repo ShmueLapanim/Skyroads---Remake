@@ -12,9 +12,11 @@ public class PlayerController : MonoBehaviour
     
     private PlayerInput _input;
     private Rigidbody _rb;
+    private BoxCollider _collider;
     private Coroutine _jumpBufferCoroutine;
     
     private float _currentGravity;
+    private float _springForceModifier;
     
     private bool _wantsToJump;
     private bool _alignToGround = true;
@@ -27,6 +29,7 @@ public class PlayerController : MonoBehaviour
     {
         _input = GetComponent<PlayerInput>();
         _rb = GetComponent<Rigidbody>();
+        _collider = GetComponentInChildren<BoxCollider>();
     }
     
     private void Update()
@@ -115,8 +118,6 @@ public class PlayerController : MonoBehaviour
         _currentGravity = Mathf.MoveTowards(_currentGravity, targetGravity, controllerSettings.gravityChangeSpeed * Time.fixedDeltaTime);
         
         TryCutJump(_rb.linearVelocity.y, _input.JumpReleased);
-        
-        print(_currentGravity);
         
         /*float targetGravity;
         if (!_isJumping)
@@ -254,14 +255,21 @@ public class PlayerController : MonoBehaviour
     {
         if(!_alignToGround) return;
 
-        if (IsGrounded(out RaycastHit hit))
+        bool isGrounded = IsGrounded(out RaycastHit hit);
+
+        //if we are too close to the ground we want a stronger spring so we wont collide
+        float distanceToGround = _collider.bounds.min.y - hit.point.y;
+        _springForceModifier = distanceToGround <= 0.2f ? 10f / controllerSettings.groundSpringStrength : 1f;
+        
+        // spring logic when on the ground
+        if (isGrounded)
         {
             float currentY = transform.position.y;
             float targetY = hit.point.y + controllerSettings.groundHeight;
             float displacement = targetY - currentY;
 
             // Apply spring force
-            float springForce = displacement * controllerSettings.groundSpringStrength - _rb.linearVelocity.y * controllerSettings.groundSpringDamping;
+            float springForce = displacement * controllerSettings.groundSpringStrength * _springForceModifier - _rb.linearVelocity.y * controllerSettings.groundSpringDamping;
 
             Vector3 targetVelocity = _rb.linearVelocity;
             targetVelocity.y += springForce;
@@ -272,6 +280,9 @@ public class PlayerController : MonoBehaviour
         {
             _alignToGround = false;
         }
+        
+        print(_springForceModifier);
+       
     }
     
     private bool IsGrounded(out RaycastHit hit, float extraDistance = 0f)
