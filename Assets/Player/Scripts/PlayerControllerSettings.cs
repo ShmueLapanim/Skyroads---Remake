@@ -8,12 +8,15 @@ public class PlayerControllerSettings : ScriptableObject
     [Header("Horizontal Movement Settings")]
     [Range(0f,20f)]public float horizontalSpeed;
     [Range(0f,200f)]public float horizontalAcceleration;
+    [Range(0f,500f)]public float horizontalAccelerationChangeSpeed;
+    [Range(0f, 1f)] public float terminalHorizontalSpeedTH;
     
     [Header("Forward Movement Settings")]
     [Range(0f,30f)]public float forwardSpeed;
     [Range(0f,30f)]public float forwardAcceleration;
     
     [Header("Gravity Settings")]
+    public LayerMask groundLayer;
     [Range(0f,10f)]public float gravity;
     [Range(0f,50f)]public float terminalVelocity;
     [Range(0f, 1f)] public float terminalGravityTH;

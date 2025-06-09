@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour
     
     private float _currentGravity;
     private float _springForceModifier;
+    private float _currentHorizontalAcceleration;
     
     private bool _wantsToJump;
     private bool _alignToGround = true;
@@ -57,16 +58,29 @@ public class PlayerController : MonoBehaviour
     #region Movement Logic
     void HandleHorizontalMovement()
     {
-        float targetX = controllerSettings.horizontalSpeed * _input.HorizontalMovementInput;
+        float targetVelX = controllerSettings.horizontalSpeed * _input.HorizontalMovementInput;
         
-        bool isBraking = Mathf.Sign(_rb.linearVelocity.x) != Mathf.Sign(targetX);
-        isBraking = isBraking && targetX != 0 && _rb.linearVelocity.x != 0; //because 0 is considered positive we need to tak that into account
+        //isBraking simply means: are we trying to go the opposite way we are going right now?
+        bool isBraking = !Mathf.Approximately(Mathf.Sign(_rb.linearVelocity.x), Mathf.Sign(targetVelX));
+        isBraking = isBraking && targetVelX != 0 && _rb.linearVelocity.x != 0; //because 0 is considered positive we need to take that into account
         
-        float acceleration = isBraking ? 1.75f * controllerSettings.horizontalAcceleration : controllerSettings.horizontalAcceleration;
+        float targetAcceleration = isBraking ? 1.75f * controllerSettings.horizontalAcceleration : controllerSettings.horizontalAcceleration;
+        
+        bool isReachingMaxSpeed = Mathf.Abs(_rb.linearVelocity.x) > Mathf.Abs(targetVelX) * controllerSettings.terminalHorizontalSpeedTH;
+        isReachingMaxSpeed = isReachingMaxSpeed && targetVelX != 0 && Mathf.Approximately(Mathf.Sign(_rb.linearVelocity.x), Mathf.Sign(targetVelX));
+
+        float maxSpeedAcceleration =
+                Helper.MapValue(Mathf.Abs(_rb.linearVelocity.x),
+                Mathf.Abs(targetVelX) * controllerSettings.terminalHorizontalSpeedTH, Mathf.Abs(targetVelX),
+                targetAcceleration, 0.1f);
+        
+        _currentHorizontalAcceleration = isReachingMaxSpeed ? maxSpeedAcceleration : isBraking || targetVelX == 0f ? targetAcceleration :
+            Mathf.MoveTowards(_currentHorizontalAcceleration, targetAcceleration, controllerSettings.horizontalAccelerationChangeSpeed * Time.fixedDeltaTime);
         
         Vector3 targetVelocity = _rb.linearVelocity;
-        targetVelocity.x = Mathf.MoveTowards(targetVelocity.x, targetX, acceleration * Time.fixedDeltaTime);
+        targetVelocity.x = Mathf.MoveTowards(targetVelocity.x, targetVelX, _currentHorizontalAcceleration * Time.fixedDeltaTime);
         
+        print($"{_currentHorizontalAcceleration} , {_rb.linearVelocity.x}");
         _rb.linearVelocity = targetVelocity;
     }
     
@@ -120,61 +134,17 @@ public class PlayerController : MonoBehaviour
 
     void HandleVariableJump()
     {
-        //is jumping is true when we started a jump al the way to where we land meaning that when we fall after the jump isJumping is true
+        // is jumping is true when we started a jump al the way to where we land meaning that when we fall after the jump isJumping is true
         // isFalling is only true when we fall after a jump
+        
+        // if we are at the terminal gravity threshold we dont want to change the gravity
+        // the CapFallSpeed() has different cehavior
         if(_rb.linearVelocity.y < -controllerSettings.terminalVelocity * controllerSettings.terminalGravityTH) return;
         
         float targetGravity = CalculateTargetGravity(_rb.linearVelocity.y, _input.JumpHeld);
         _currentGravity = Mathf.MoveTowards(_currentGravity, targetGravity, controllerSettings.gravityChangeSpeed * Time.fixedDeltaTime);
         
         TryCutJump(_rb.linearVelocity.y, _input.JumpReleased);
-        
-        /*float targetGravity;
-        if (!_isJumping)
-        {
-            targetGravity = controllerSettings.gravity;
-        }
-        else
-        {
-            if (!_input.JumpHeld)
-            {
-                // Released jump early → fall faster
-                targetGravity = controllerSettings.fallGravity;
-            }
-            else if (Mathf.Abs(_rb.linearVelocity.y) < controllerSettings.apexThreshold)
-            {
-                // Near apex → reduced gravity
-                targetGravity = controllerSettings.apexGravity;
-            }
-            else if (_rb.linearVelocity.y < 0)
-            {
-                // Falling after apex
-                targetGravity = controllerSettings.fallGravity;
-                _isFalling = true;
-            }
-            else
-            {
-                //Ascending with jump held
-                targetGravity = controllerSettings.gravity;
-            }
-        }
-        
-        // Smooth gravity transition
-        _currentGravity = Mathf.MoveTowards(_currentGravity, targetGravity, controllerSettings.gravityChangeSpeed * Time.fixedDeltaTime);
-
-        // Early jump release dampening (low jump)
-        if (!_isFalling && _input.JumpReleased && _rb.linearVelocity.y > controllerSettings.apexThreshold)
-        {
-            Vector3 jumpVel = _rb.linearVelocity;
-            jumpVel.y *= controllerSettings.jumpCutMultiplier;
-            _rb.linearVelocity = jumpVel;
-            _isFalling = true;
-            print("slowed down");
-        }
-        
-        print(_currentGravity);
-        */
-        
     }
     
     private float CalculateTargetGravity(float velocityY, bool jumpHeld)
@@ -231,11 +201,12 @@ public class PlayerController : MonoBehaviour
         _rb.linearVelocity = cappedVelocity;
         
         //smooth transition of the gravity towards reaching terminal velocity
+        float gravity = _isJumping ? controllerSettings.fallGravity : controllerSettings.gravity;
         
         _currentGravity = _rb.linearVelocity.y < -controllerSettings.terminalVelocity * controllerSettings.terminalGravityTH ? 
                             Helper.MapValue(_rb.linearVelocity.y, 
-                                    -controllerSettings.terminalVelocity, -controllerSettings.terminalVelocity * controllerSettings.terminalGravityTH
-                                    , 0, controllerSettings.fallGravity) : 
+                            -controllerSettings.terminalVelocity, -controllerSettings.terminalVelocity * controllerSettings.terminalGravityTH
+                            , 0.1f, gravity) : 
                             _currentGravity;
     }
 
@@ -255,24 +226,6 @@ public class PlayerController : MonoBehaviour
         }
         _isGrounded = IsGrounded(); // testing purposes
     }
-    
-    void GroundAlignment()
-    {
-        Vector3 targetVelocity = _rb.linearVelocity;
-        RaycastHit hit;
-
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, controllerSettings.groundHeight + 1f) && _alignToGround)
-        {
-            // align on the y
-            float distanceToGround = Vector3.Distance(transform.position, hit.point);
-            targetVelocity.y = (controllerSettings.groundHeight - distanceToGround) * controllerSettings.groundSpringStrength;
-
-            //smoothing the alignment on the y
-            targetVelocity.x = _rb.linearVelocity.x;
-            targetVelocity.z = _rb.linearVelocity.z;
-            _rb.linearVelocity = Vector3.Lerp(_rb.linearVelocity, targetVelocity, controllerSettings.groundSpringDamping * Time.fixedDeltaTime);
-        }
-    } // ignore
     
     void GroundAlignment2()
     {
@@ -314,7 +267,7 @@ public class PlayerController : MonoBehaviour
             Vector3.down, 
             out hit,Quaternion.identity,
             controllerSettings.groundHeight + extraDistance, 
-            LayerMask.GetMask("Ground")
+            controllerSettings.groundLayer
         ); 
     }
     
