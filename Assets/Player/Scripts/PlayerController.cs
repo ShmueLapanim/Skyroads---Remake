@@ -178,7 +178,6 @@ public class PlayerController : MonoBehaviour
             jumpVel.y *= controllerSettings.jumpCutMultiplier;
             _rb.linearVelocity = jumpVel;
             _isFalling = true;
-            print("slowed down");
         }
     }
     
@@ -286,7 +285,7 @@ public class PlayerController : MonoBehaviour
     {
         Quaternion alignRotation;
 
-        if (_alignToGround && Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, controllerSettings.groundHeight + 1f))
+        if (_alignToGround && IsGrounded(out RaycastHit hit))
         {
             // Align rotation to slope normal
             alignRotation = Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation;
