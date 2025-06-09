@@ -16,6 +16,7 @@ public class PlayerControllerSettings : ScriptableObject
     [Header("Gravity Settings")]
     [Range(0f,10f)]public float gravity;
     [Range(0f,50f)]public float terminalVelocity;
+    [Range(0f, 1f)] public float terminalGravityTH;
     
     [Header("Jump Settings")]
     [Range(0f,10f)]public float jumpHeight;

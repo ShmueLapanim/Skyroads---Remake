@@ -107,7 +107,7 @@ public class PlayerController : MonoBehaviour
         _wantsToJump = false;
         _alignToGround = false;
         
-        //compensate if we are not in the desired height
+        //compensate if we are not in the desired height (the ground spring)
         float yCorrection = controllerSettings.groundHeight - (transform.position.y - hit.point.y);
         
         // reset the gravity so the jump height will be correct
@@ -122,6 +122,7 @@ public class PlayerController : MonoBehaviour
     {
         //is jumping is true when we started a jump al the way to where we land meaning that when we fall after the jump isJumping is true
         // isFalling is only true when we fall after a jump
+        if(_rb.linearVelocity.y < -controllerSettings.terminalVelocity * controllerSettings.terminalGravityTH) return;
         
         float targetGravity = CalculateTargetGravity(_rb.linearVelocity.y, _input.JumpHeld);
         _currentGravity = Mathf.MoveTowards(_currentGravity, targetGravity, controllerSettings.gravityChangeSpeed * Time.fixedDeltaTime);
@@ -219,10 +220,23 @@ public class PlayerController : MonoBehaviour
         
         _rb.linearVelocity += gravity * Time.fixedDeltaTime;
         
+        CapFallSpeed();
+    }
+
+    void CapFallSpeed()
+    { 
         //cap the fall speed
         Vector3 cappedVelocity = _rb.linearVelocity;
         cappedVelocity.y = Mathf.Clamp(cappedVelocity.y, -controllerSettings.terminalVelocity, Mathf.Infinity);
         _rb.linearVelocity = cappedVelocity;
+        
+        //smooth transition of the gravity towards reaching terminal velocity
+        
+        _currentGravity = _rb.linearVelocity.y < -controllerSettings.terminalVelocity * controllerSettings.terminalGravityTH ? 
+                            Helper.MapValue(_rb.linearVelocity.y, 
+                                    -controllerSettings.terminalVelocity, -controllerSettings.terminalVelocity * controllerSettings.terminalGravityTH
+                                    , 0, controllerSettings.fallGravity) : 
+                            _currentGravity;
     }
 
     
@@ -299,7 +313,8 @@ public class PlayerController : MonoBehaviour
             controllerSettings.halfExtents, 
             Vector3.down, 
             out hit,Quaternion.identity,
-            controllerSettings.groundHeight + extraDistance
+            controllerSettings.groundHeight + extraDistance, 
+            LayerMask.GetMask("Ground")
         ); 
     }
     
