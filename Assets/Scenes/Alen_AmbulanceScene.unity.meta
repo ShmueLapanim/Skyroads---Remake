@@ -1,5 +1,9 @@
 fileFormatVersion: 2
-guid: a4b6fc0d234f30347afa045b3d1f16b4
+<<<<<<<< HEAD:Assets/Scenes/Alen_AmbulanceScene.unity.meta
+guid: 3e9d0e789d840f1469f7efdf17e4c5da
+========
+guid: aa376ccb1d7794d4c8a23318fb49ce93
+>>>>>>>> Dev:Assets/Scenes/Tomer_testScene.unity.meta
 DefaultImporter:
   externalObjects: {}
   userData: 
