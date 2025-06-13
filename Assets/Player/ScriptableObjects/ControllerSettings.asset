@@ -15,7 +15,9 @@ MonoBehaviour:
   horizontalSpeed: 10
   horizontalAcceleration: 30
   horizontalAccelerationChangeSpeed: 100
+  breakingModifer: 1
   terminalHorizontalSpeedTH: 0.6
+  autoBrake: 1
   forwardSpeed: 11.6
   forwardAcceleration: 12
   groundLayer:

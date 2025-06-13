@@ -6,12 +6,14 @@ public class PlatformDetection : MonoBehaviour
     [SerializeField] LayerMask platformLayer;
 
     private PlayerController _controller;
+    private Rigidbody _rb;
     private GameObject _currentPlatform;
     private bool _isOnSpecialPlatform;
     
     void Awake()
     {
         _controller = GetComponent<PlayerController>();
+        _rb = GetComponent<Rigidbody>();
     }
 
     void Update()
@@ -28,7 +30,7 @@ public class PlatformDetection : MonoBehaviour
         TryRemoveEffect(_currentPlatform);    // If on a different platform, remove old effect                             
         
         _currentPlatform = hit.collider.gameObject;     //assigns _currentPlatform to the new platform and applies the effect 
-        newEffect.Apply(_controller);
+        newEffect.Apply(_controller, _rb);
         _isOnSpecialPlatform = true;
         
         print("Platform detected and applied effect.");

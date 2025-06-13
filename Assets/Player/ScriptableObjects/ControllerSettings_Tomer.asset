@@ -15,7 +15,9 @@ MonoBehaviour:
   horizontalSpeed: 10
   horizontalAcceleration: 30
   horizontalAccelerationChangeSpeed: 100
+  breakingModifer: 1.75
   terminalHorizontalSpeedTH: 0.6
+  autoBrake: 1
   forwardSpeed: 12
   forwardAcceleration: 12
   groundLayer:
@@ -28,11 +30,11 @@ MonoBehaviour:
   jumpBufferTime: 0.1
   fallGravity: 6
   apexGravity: 1.5
-  apexThreshold: 2
+  apexThreshold: 1.5
   gravityChangeSpeed: 5
   jumpCutMultiplier: 0.65
   centerOffset: {x: 0, y: 0, z: 0}
-  halfExtents: {x: 0.4, y: 0.2, z: 0.8}
+  halfExtents: {x: 0.35, y: 0.2, z: 0.8}
   groundHeight: 1
   groundSpringStrength: 5
   groundSpringDamping: 0.4
