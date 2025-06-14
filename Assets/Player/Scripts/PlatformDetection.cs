@@ -8,7 +8,10 @@ public class PlatformDetection : MonoBehaviour
     private PlayerController _controller;
     private Rigidbody _rb;
     private GameObject _currentPlatform;
+    
     private bool _isOnSpecialPlatform;
+
+    private Coroutine _currentPlatformCoroutine;
     
     void Awake()
     {
@@ -30,7 +33,7 @@ public class PlatformDetection : MonoBehaviour
         TryRemoveEffect(_currentPlatform);    // If on a different platform, remove old effect                             
         
         _currentPlatform = hit.collider.gameObject;     //assigns _currentPlatform to the new platform and applies the effect 
-        newEffect.Apply(_controller, _rb);
+        newEffect.Apply(_controller, _rb, this, ref _currentPlatformCoroutine);
         _isOnSpecialPlatform = true;
         
         print("Platform detected and applied effect.");
@@ -38,17 +41,14 @@ public class PlatformDetection : MonoBehaviour
 
     void HandlePlatformExit()
     {
-        // checks if we are no longer on a special platform
-        if (_isOnSpecialPlatform && !IsStillOnPlatform())
-        {
-            // removes the effect and removes _currentPlatform
-            TryRemoveEffect(_currentPlatform);           
-            _currentPlatform = null;
-            _isOnSpecialPlatform = false;
-            
-            print("No Platform detected and removed effect.");
-        }
+        if (!_isOnSpecialPlatform) return;       // checks if we are no longer on a special platform
+        if(IsStillOnPlatform()) return;
+    
+        TryRemoveEffect(_currentPlatform);       // removes the effect and removes _currentPlatform
+        _currentPlatform = null;
+        _isOnSpecialPlatform = false;
         
+        print("No Platform detected and removed effect.");
     }
     
     private bool TryDetectPlatform(out RaycastHit hit, float extraDistance = 0f)
@@ -76,7 +76,7 @@ public class PlatformDetection : MonoBehaviour
     {
         if (platform != null && platform.TryGetComponent(out IPlatformEffect effect))
         {
-            effect.Remove(_controller);
+            effect.Remove(_controller, this, ref _currentPlatformCoroutine);
         }
     }
 }

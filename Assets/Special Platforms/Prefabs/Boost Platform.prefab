@@ -30,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.000000014901159, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -9.862404, y: -12.032436, z: 134.18}
-  m_LocalScale: {x: 1, y: 1, z: 0.2749638}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -124,6 +124,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   initialImpulseModifier: 1.5
   springModifier: 0
+  jumpModifier: 0
   boostSpeed: 25
   boostAcceleration: 50
   boostDuration: 0.7

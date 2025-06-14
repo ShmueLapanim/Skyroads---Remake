@@ -79,7 +79,8 @@ public class PlayerController : MonoBehaviour
         _currentHorizontalAcceleration = isReachingMaxSpeed ? maxSpeedAcceleration : isBraking || targetVelX == 0f ? targetAcceleration :
             Mathf.MoveTowards(_currentHorizontalAcceleration, targetAcceleration, RuntimeSettings.horizontalAccelerationChangeSpeed * Time.fixedDeltaTime);
         
-        if(!RuntimeSettings.autoBrake && targetVelX == 0f) return;
+        if(!RuntimeSettings.autoBrake && targetVelX == 0f) return;  // if autoBreak is off and we have no horizontal input so we dont want to update movement
+        
         Vector3 targetVelocity = _rb.linearVelocity;
         targetVelocity.x = Mathf.MoveTowards(targetVelocity.x, targetVelX, _currentHorizontalAcceleration * Time.fixedDeltaTime);
         
