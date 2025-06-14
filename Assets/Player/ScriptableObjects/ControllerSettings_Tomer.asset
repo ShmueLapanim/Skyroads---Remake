@@ -24,7 +24,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 72
   gravity: 3
-  terminalVelocity: 20
+  terminalVelocity: 25
   terminalGravityTH: 0.65
   jumpHeight: 6
   jumpBufferTime: 0.1
