@@ -35,7 +35,7 @@ public class BoostPlatform : MonoBehaviour, IPlatformEffect
         Vector3 boost = rb.linearVelocity;
         boost.z = rb.linearVelocity.z * initialImpulseModifier;
         boost.z = Mathf.Clamp(boost.z, 0f, player.DefaultSettings.forwardSpeed * initialImpulseModifier * boostStackCount);
-        rb.linearVelocity = boost;
+        rb.linearVelocity = boost.z > rb.linearVelocity.z ? boost : rb.linearVelocity;
         
         player.RuntimeSettings.forwardAcceleration = boostAcceleration;
         player.RuntimeSettings.forwardSpeed = boostSpeed;
