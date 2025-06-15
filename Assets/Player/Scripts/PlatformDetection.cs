@@ -11,7 +11,7 @@ public class PlatformDetection : MonoBehaviour
     
     private bool _isOnSpecialPlatform;
 
-    private Coroutine _currentPlatformCoroutine;
+    private Coroutine _currentPlatformCoroutine; // for other special platforms to start (example: boostPlatform)
     
     void Awake()
     {

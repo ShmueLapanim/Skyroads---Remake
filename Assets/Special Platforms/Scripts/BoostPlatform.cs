@@ -22,6 +22,8 @@ public class BoostPlatform : MonoBehaviour, IPlatformEffect
     public float boostAcceleration = 20f;
     [Range(0.1f,2f)]public float boostDuration = 0.5f;
     
+    // a coroutine has to start and stop from the same instance 
+    // thats why we are passing in the PlatformDetection instance so we can start and stop the boostCoroutine from there
     public void Apply(PlayerController player, Rigidbody rb, PlatformDetection runner, ref Coroutine boostCoroutine)
     {
         if (boostCoroutine != null)
