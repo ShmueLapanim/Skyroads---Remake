@@ -132,6 +132,7 @@ public class PlayerController : MonoBehaviour
         
         Vector3 jumpVel = _rb.linearVelocity;
         jumpVel.y = Mathf.Sqrt((RuntimeSettings.jumpHeight + yCorrection) * -2f * Physics.gravity.y * RuntimeSettings.gravity);
+        if(float.IsNaN(jumpVel.y)) return;
         _rb.linearVelocity = jumpVel;
     }
 

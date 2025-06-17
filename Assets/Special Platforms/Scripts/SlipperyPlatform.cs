@@ -13,7 +13,6 @@ public class SlipperyPlatform : MonoBehaviour, IPlatformEffect
         player.RuntimeSettings.horizontalAcceleration = slipperyAcceleration;
         player.RuntimeSettings.horizontalSpeed = slipperySpeed;
         player.RuntimeSettings.breakingModifer = 1f;
-
         player.RuntimeSettings.autoBrake = false;
     }
 
@@ -24,7 +23,6 @@ public class SlipperyPlatform : MonoBehaviour, IPlatformEffect
         player.RuntimeSettings.horizontalAcceleration = player.DefaultSettings.horizontalAcceleration;
         player.RuntimeSettings.horizontalSpeed = player.DefaultSettings.horizontalSpeed;
         player.RuntimeSettings.breakingModifer = player.DefaultSettings.breakingModifer;
-        
         player.RuntimeSettings.autoBrake = player.DefaultSettings.autoBrake;
     }
 }

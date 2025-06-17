@@ -17,6 +17,7 @@ public class PlayerFuel : MonoBehaviour
     
     private float _lastFrameZPos;
     private float _fuel;
+    private float _usedFuel;
 
     void Awake()
     {
@@ -28,17 +29,27 @@ public class PlayerFuel : MonoBehaviour
     void Update()
     {
         UseFuel();
+        DisplayFuel();
         if(_fuel <= 0f) _playerDeath.DieNoFuel();
+    }
+
+    void LateUpdate()
+    {
+        _lastFrameZPos = transform.position.z;
     }
 
     private void UseFuel()
     {
-        float usedFuel = (transform.position.z - _lastFrameZPos) * fuelConsumption;
-        _fuel -= usedFuel;
+        _usedFuel = (transform.position.z - _lastFrameZPos) * fuelConsumption;
+        _fuel -= _usedFuel;
         _fuel = Mathf.Clamp(_fuel, 0f, startingFuel);
-        _lastFrameZPos = transform.position.z;
-        
-        DisplayFuel();
+    }
+
+    public void Refuel(float amountPerUnit)
+    {
+        float filledFuel = (transform.position.z - _lastFrameZPos) * amountPerUnit;
+        _fuel += filledFuel + _usedFuel;
+        _fuel = Mathf.Clamp(_fuel, 0f, startingFuel);
     }
 
     private void DisplayFuel()
