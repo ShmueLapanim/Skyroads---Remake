@@ -1,9 +1,15 @@
 using Unity.VisualScripting;
 using UnityEngine;
 
+public enum PlatformType
+{
+    None, Boost, Slippery, Refuel, Death
+}
 public class PlatformDetection : MonoBehaviour
 {
-    [SerializeField] LayerMask platformLayer;
+    [SerializeField] private PlatformType currentPlatformType = PlatformType.None;
+    
+    [SerializeField] private LayerMask platformLayer;
 
     private PlayerController _controller;
     private Rigidbody _rb;
@@ -33,7 +39,7 @@ public class PlatformDetection : MonoBehaviour
         TryRemoveEffect(_currentPlatform);    // If on a different platform, remove old effect                             
         
         _currentPlatform = hit.collider.gameObject;     //assigns _currentPlatform to the new platform and applies the effect 
-        newEffect.Apply(_controller, _rb, this, ref _currentPlatformCoroutine);
+        newEffect.Apply(_controller, _rb, ref currentPlatformType, this, ref _currentPlatformCoroutine);
         _isOnSpecialPlatform = true;
         
         print("Platform detected and applied effect.");
@@ -76,7 +82,7 @@ public class PlatformDetection : MonoBehaviour
     {
         if (platform != null && platform.TryGetComponent(out IPlatformEffect effect))
         {
-            effect.Remove(_controller, this, ref _currentPlatformCoroutine);
+            effect.Remove(_controller, ref currentPlatformType, this, ref _currentPlatformCoroutine);
         }
     }
 }
