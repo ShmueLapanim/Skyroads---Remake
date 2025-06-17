@@ -15,7 +15,6 @@ public class GameManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject); // optional
     }
 
     public void RestartLevel(float delay = 0f)

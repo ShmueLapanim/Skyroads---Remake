@@ -24,8 +24,10 @@ public class BoostPlatform : MonoBehaviour, IPlatformEffect
     
     // a coroutine has to start and stop from the same instance 
     // thats why we are passing in the PlatformDetection instance so we can start and stop the boostCoroutine from there
-    public void Apply(PlayerController player, Rigidbody rb, PlatformDetection runner, ref Coroutine boostCoroutine)
+    public void Apply(PlayerController player, Rigidbody rb, ref PlatformType platformType, PlatformDetection runner, ref Coroutine boostCoroutine)
     {
+        platformType = PlatformType.Boost;
+        
         if (boostCoroutine != null)
         {
             runner.StopCoroutine(boostCoroutine);
@@ -35,7 +37,7 @@ public class BoostPlatform : MonoBehaviour, IPlatformEffect
         Vector3 boost = rb.linearVelocity;
         boost.z = rb.linearVelocity.z * initialImpulseModifier;
         boost.z = Mathf.Clamp(boost.z, 0f, player.DefaultSettings.forwardSpeed * initialImpulseModifier * boostStackCount);
-        rb.linearVelocity = boost;
+        rb.linearVelocity = boost.z > rb.linearVelocity.z ? boost : rb.linearVelocity;
         
         player.RuntimeSettings.forwardAcceleration = boostAcceleration;
         player.RuntimeSettings.forwardSpeed = boostSpeed;
@@ -43,8 +45,9 @@ public class BoostPlatform : MonoBehaviour, IPlatformEffect
         player.RuntimeSettings.jumpHeight = jumpModifier * player.DefaultSettings.jumpHeight;
     }
 
-    public void Remove(PlayerController player, PlatformDetection runner, ref Coroutine boostCoroutine)
+    public void Remove(PlayerController player, ref PlatformType platformType, PlatformDetection runner, ref Coroutine boostCoroutine)
     {
+        platformType = platformType == PlatformType.Boost ? PlatformType.None : platformType;
         boostCoroutine = runner.StartCoroutine(StopBoost(player, boostDuration));
     }
 

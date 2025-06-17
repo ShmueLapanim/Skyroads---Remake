@@ -30,15 +30,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9186654950110160553, guid: 48646f0abd6d0834781d4a0e9aca4ff5, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -1.247921
       objectReference: {fileID: 0}
     - target: {fileID: 9186654950110160553, guid: 48646f0abd6d0834781d4a0e9aca4ff5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.75
+      value: 1.14
       objectReference: {fileID: 0}
     - target: {fileID: 9186654950110160553, guid: 48646f0abd6d0834781d4a0e9aca4ff5, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.41
       objectReference: {fileID: 0}
     - target: {fileID: 9186654950110160553, guid: 48646f0abd6d0834781d4a0e9aca4ff5, type: 3}
       propertyPath: m_LocalRotation.w
@@ -75,6 +75,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8204731936019537321, guid: 48646f0abd6d0834781d4a0e9aca4ff5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5994325006556975168}
+    - targetCorrespondingSourceObject: {fileID: 8204731936019537321, guid: 48646f0abd6d0834781d4a0e9aca4ff5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5404970478328549636}
+    - targetCorrespondingSourceObject: {fileID: 8204731936019537321, guid: 48646f0abd6d0834781d4a0e9aca4ff5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 25936324835837457}
   m_SourcePrefab: {fileID: 100100000, guid: 48646f0abd6d0834781d4a0e9aca4ff5, type: 3}
 --- !u!1 &7554837596202100468 stripped
 GameObject:
@@ -96,3 +102,32 @@ MonoBehaviour:
   platformLayer:
     serializedVersion: 2
     m_Bits: 64
+--- !u!114 &5404970478328549636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7554837596202100468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10f04bd896d723b4e9766f0812f13905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fuelText: {fileID: 0}
+  fuelConsumption: 1.4
+  startingFuel: 100
+--- !u!114 &25936324835837457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7554837596202100468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ed62ecd82b2e224ba6f8d1ed3208773, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deathTimer: 1
+  noFuelTimer: 3
