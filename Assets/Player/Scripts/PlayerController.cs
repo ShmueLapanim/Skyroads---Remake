@@ -63,10 +63,12 @@ public class PlayerController : MonoBehaviour
         float targetVelX = RuntimeSettings.horizontalSpeed * _input.HorizontalMovementInput;
         
         //isBraking simply means: are we trying to go the opposite way we are going right now?
-        bool isBraking = !Mathf.Approximately(Mathf.Sign(_rb.linearVelocity.x), Mathf.Sign(targetVelX));
-        isBraking = isBraking && targetVelX != 0 && _rb.linearVelocity.x != 0; //because 0 is considered positive we need to take that into account
+        bool isChangingDirection = Mathf.Abs(_rb.linearVelocity.x) >
+                                   Mathf.Abs(Mathf.MoveTowards(_rb.linearVelocity.x, targetVelX, 5f * Time.fixedDeltaTime));
+        isChangingDirection = isChangingDirection && targetVelX != 0;
         
-        float targetAcceleration = isBraking ? RuntimeSettings.breakingModifer * RuntimeSettings.horizontalAcceleration : RuntimeSettings.horizontalAcceleration;
+        float targetAcceleration = isChangingDirection ? RuntimeSettings.horizontalChangeAcceleration : 
+                                   targetVelX == 0 ? RuntimeSettings.horizontalDeceleration : RuntimeSettings.horizontalAcceleration;
         
         bool isReachingMaxSpeed = Mathf.Abs(_rb.linearVelocity.x) > Mathf.Abs(targetVelX) * RuntimeSettings.terminalHorizontalSpeedTH;
         isReachingMaxSpeed = isReachingMaxSpeed && targetVelX != 0 && Mathf.Approximately(Mathf.Sign(_rb.linearVelocity.x), Mathf.Sign(targetVelX));
@@ -76,10 +78,8 @@ public class PlayerController : MonoBehaviour
                 Mathf.Abs(targetVelX) * RuntimeSettings.terminalHorizontalSpeedTH, Mathf.Abs(targetVelX),
                 targetAcceleration, 0.1f);
         
-        _currentHorizontalAcceleration = isReachingMaxSpeed ? maxSpeedAcceleration : isBraking || targetVelX == 0f ? targetAcceleration :
+        _currentHorizontalAcceleration = isReachingMaxSpeed ? maxSpeedAcceleration : isChangingDirection || targetVelX == 0f ? targetAcceleration :
             Mathf.MoveTowards(_currentHorizontalAcceleration, targetAcceleration, RuntimeSettings.horizontalAccelerationChangeSpeed * Time.fixedDeltaTime);
-        
-        if(!RuntimeSettings.autoBrake && targetVelX == 0f) return;  // if autoBreak is off and we have no horizontal input so we dont want to update movement
         
         Vector3 targetVelocity = _rb.linearVelocity;
         targetVelocity.x = Mathf.MoveTowards(targetVelocity.x, targetVelX, _currentHorizontalAcceleration * Time.fixedDeltaTime);
@@ -146,13 +146,13 @@ public class PlayerController : MonoBehaviour
         // isFalling is only true when we fall after a jump
         
         // if we are at the terminal gravity threshold we dont want to change the gravity
-        // the CapFallSpeed() has different cehavior
+        // the CapFallSpeed() has different behavior
         if(_rb.linearVelocity.y < -RuntimeSettings.terminalVelocity * RuntimeSettings.terminalGravityTH) return;
         
         float targetGravity = CalculateTargetGravity(_rb.linearVelocity.y, _input.JumpHeld);
-        _currentGravity = Mathf.MoveTowards(_currentGravity, targetGravity, RuntimeSettings.gravityChangeSpeed * Time.fixedDeltaTime);
+        _currentGravity = Mathf.MoveTowards(_currentGravity, targetGravity, RuntimeSettings.gravityChangeSpeed * Time.deltaTime);
         
-        TryCutJump(_rb.linearVelocity.y, _input.JumpReleased);
+        TryCutJump(_rb.linearVelocity.y, !_input.JumpHeld || _input.JumpReleased);
     }
     
     private float CalculateTargetGravity(float velocityY, bool jumpHeld)
@@ -180,12 +180,13 @@ public class PlayerController : MonoBehaviour
     
     private void TryCutJump(float velocityY, bool jumpReleased)
     {
-        if (!_isFalling && jumpReleased && velocityY > RuntimeSettings.apexThreshold)
+        if (!_isFalling && _isJumping && jumpReleased && velocityY > RuntimeSettings.apexThreshold)
         {
             Vector3 jumpVel = _rb.linearVelocity;
             jumpVel.y *= RuntimeSettings.jumpCutMultiplier;
             _rb.linearVelocity = jumpVel;
             _isFalling = true;
+            print("cuttt");
         }
     }
     
@@ -225,7 +226,7 @@ public class PlayerController : MonoBehaviour
 
     private void CheckGroundStatus()
     {
-        if (!_alignToGround && IsGrounded() && _rb.linearVelocity.y <= 0f)
+        if (!_alignToGround && IsGrounded() && _rb.linearVelocity.y <= 0.1f)
         {
             _alignToGround = true;
             _isJumping = false;

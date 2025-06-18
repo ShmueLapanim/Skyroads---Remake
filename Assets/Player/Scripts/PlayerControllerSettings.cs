@@ -7,11 +7,12 @@ public class PlayerControllerSettings : ScriptableObject
 {
     [Header("Horizontal Movement Settings")]
     [Range(0f,20f)]public float horizontalSpeed;
-    [Range(0f,200f)]public float horizontalAcceleration;
+    [Range(0f,200f)][Tooltip("Used when increasing horizontal speed")]public float horizontalAcceleration;
+    [Range(0f,200f)][Tooltip("Used when Changing movement direction \n Should be higher than acceleration")] public float horizontalChangeAcceleration;
+    [Range(0f,200f)][Tooltip("Used when Decreasing horizontal speed only when horizontal input is 0")]public float horizontalDeceleration;
     [Range(0f,500f)]public float horizontalAccelerationChangeSpeed;
-    [Range(1.1f, 2f)] public float breakingModifer;
     [Range(0f, 1f)] public float terminalHorizontalSpeedTH;
-    public bool autoBrake = true;
+    
     
     [Header("Forward Movement Settings")]
     [Range(0f,30f)]public float forwardSpeed;
