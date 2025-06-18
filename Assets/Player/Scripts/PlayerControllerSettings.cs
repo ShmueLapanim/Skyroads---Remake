@@ -16,6 +16,7 @@ public class PlayerControllerSettings : ScriptableObject
     [Header("Forward Movement Settings")]
     [Range(0f,30f)]public float forwardSpeed;
     [Range(0f,100f)]public float forwardAcceleration;
+    [Range(0f,100f)]public float forwardDeceleration;
     
     [Header("Gravity Settings")]
     public LayerMask groundLayer;

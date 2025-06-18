@@ -124,3 +124,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slipperyAcceleration: 12
   slipperySpeed: 12
+  slipperyForwardAcceleration: 3

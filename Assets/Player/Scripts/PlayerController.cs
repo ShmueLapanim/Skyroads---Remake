@@ -91,7 +91,11 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 targetVelocity = _rb.linearVelocity;
         targetVelocity.z = RuntimeSettings.forwardSpeed;
-        _rb.linearVelocity = Vector3.MoveTowards(_rb.linearVelocity, targetVelocity, RuntimeSettings.forwardAcceleration * Time.fixedDeltaTime);
+        
+        bool isBraking = targetVelocity.z < _rb.linearVelocity.z;
+        float acceleration = isBraking ? RuntimeSettings.forwardDeceleration : RuntimeSettings.forwardAcceleration;
+        
+        _rb.linearVelocity = Vector3.MoveTowards(_rb.linearVelocity, targetVelocity, acceleration * Time.fixedDeltaTime);
     }
 
     #endregion

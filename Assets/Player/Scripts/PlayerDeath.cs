@@ -35,7 +35,6 @@ public class PlayerDeath : MonoBehaviour
     private void NoFuelEffect()
     {
         _player.RuntimeSettings.forwardSpeed = 0f;
-        _player.RuntimeSettings.forwardAcceleration = _player.DefaultSettings.forwardAcceleration;
         _player.RuntimeSettings.horizontalSpeed = 0f;
         _player.RuntimeSettings.jumpHeight = 0f;
         _player.RuntimeSettings.turningAngle = 0f;
