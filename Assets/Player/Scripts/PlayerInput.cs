@@ -20,7 +20,12 @@ public class PlayerInput : MonoBehaviour, PlayerControls.IMovementActions
     {
         DisableInput();
     }
-    
+
+    private void Update()
+    {
+        print(JumpHeld);
+    }
+
     private void LateUpdate()
     {
         JumpPressed = false;
@@ -55,12 +60,12 @@ public class PlayerInput : MonoBehaviour, PlayerControls.IMovementActions
 
     public void OnJump(InputAction.CallbackContext context)
     {
+        JumpHeld = context.ReadValueAsButton();
+        
         if (context.performed)
             JumpPressed = true;
         
         if(context.canceled)
             JumpReleased = true;
-        
-        JumpHeld = context.performed;
     }
 }

@@ -8,7 +8,8 @@ using UnityEngine.Serialization;
 [RequireComponent(typeof(PlayerInput))]
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private PlayerControllerSettings controllerSettings;
+    [field:SerializeField] public PlayerControllerSettings DefaultSettings { get; private set; }
+    public PlayerControllerSettings RuntimeSettings { get; private set; }
     
     private PlayerInput _input;
     private Rigidbody _rb;
@@ -31,6 +32,7 @@ public class PlayerController : MonoBehaviour
         _input = GetComponent<PlayerInput>();
         _rb = GetComponent<Rigidbody>();
         _collider = GetComponentInChildren<BoxCollider>();
+        RuntimeSettings = Instantiate(DefaultSettings);
         
         if(_collider == null)
             Debug.LogError("No child box collider attached");
@@ -58,37 +60,42 @@ public class PlayerController : MonoBehaviour
     #region Movement Logic
     void HandleHorizontalMovement()
     {
-        float targetVelX = controllerSettings.horizontalSpeed * _input.HorizontalMovementInput;
+        float targetVelX = RuntimeSettings.horizontalSpeed * _input.HorizontalMovementInput;
         
         //isBraking simply means: are we trying to go the opposite way we are going right now?
-        bool isBraking = !Mathf.Approximately(Mathf.Sign(_rb.linearVelocity.x), Mathf.Sign(targetVelX));
-        isBraking = isBraking && targetVelX != 0 && _rb.linearVelocity.x != 0; //because 0 is considered positive we need to take that into account
+        bool isChangingDirection = Mathf.Abs(_rb.linearVelocity.x) >
+                                   Mathf.Abs(Mathf.MoveTowards(_rb.linearVelocity.x, targetVelX, 5f * Time.fixedDeltaTime));
+        isChangingDirection = isChangingDirection && targetVelX != 0;
         
-        float targetAcceleration = isBraking ? 1.75f * controllerSettings.horizontalAcceleration : controllerSettings.horizontalAcceleration;
+        float targetAcceleration = isChangingDirection ? RuntimeSettings.horizontalChangeAcceleration : 
+                                   targetVelX == 0 ? RuntimeSettings.horizontalDeceleration : RuntimeSettings.horizontalAcceleration;
         
-        bool isReachingMaxSpeed = Mathf.Abs(_rb.linearVelocity.x) > Mathf.Abs(targetVelX) * controllerSettings.terminalHorizontalSpeedTH;
+        bool isReachingMaxSpeed = Mathf.Abs(_rb.linearVelocity.x) > Mathf.Abs(targetVelX) * RuntimeSettings.terminalHorizontalSpeedTH;
         isReachingMaxSpeed = isReachingMaxSpeed && targetVelX != 0 && Mathf.Approximately(Mathf.Sign(_rb.linearVelocity.x), Mathf.Sign(targetVelX));
 
         float maxSpeedAcceleration =
                 Helper.MapValue(Mathf.Abs(_rb.linearVelocity.x),
-                Mathf.Abs(targetVelX) * controllerSettings.terminalHorizontalSpeedTH, Mathf.Abs(targetVelX),
+                Mathf.Abs(targetVelX) * RuntimeSettings.terminalHorizontalSpeedTH, Mathf.Abs(targetVelX),
                 targetAcceleration, 0.1f);
         
-        _currentHorizontalAcceleration = isReachingMaxSpeed ? maxSpeedAcceleration : isBraking || targetVelX == 0f ? targetAcceleration :
-            Mathf.MoveTowards(_currentHorizontalAcceleration, targetAcceleration, controllerSettings.horizontalAccelerationChangeSpeed * Time.fixedDeltaTime);
+        _currentHorizontalAcceleration = isReachingMaxSpeed ? maxSpeedAcceleration : isChangingDirection || targetVelX == 0f ? targetAcceleration :
+            Mathf.MoveTowards(_currentHorizontalAcceleration, targetAcceleration, RuntimeSettings.horizontalAccelerationChangeSpeed * Time.fixedDeltaTime);
         
         Vector3 targetVelocity = _rb.linearVelocity;
         targetVelocity.x = Mathf.MoveTowards(targetVelocity.x, targetVelX, _currentHorizontalAcceleration * Time.fixedDeltaTime);
         
-        print($"{_currentHorizontalAcceleration} , {_rb.linearVelocity.x}");
         _rb.linearVelocity = targetVelocity;
     }
     
     void ApplyForwardMovement()
     {
         Vector3 targetVelocity = _rb.linearVelocity;
-        targetVelocity.z = controllerSettings.forwardSpeed;
-        _rb.linearVelocity = Vector3.MoveTowards(_rb.linearVelocity, targetVelocity, controllerSettings.forwardAcceleration * Time.fixedDeltaTime);
+        targetVelocity.z = RuntimeSettings.forwardSpeed;
+        
+        bool isBraking = targetVelocity.z < _rb.linearVelocity.z;
+        float acceleration = isBraking ? RuntimeSettings.forwardDeceleration : RuntimeSettings.forwardAcceleration;
+        
+        _rb.linearVelocity = Vector3.MoveTowards(_rb.linearVelocity, targetVelocity, acceleration * Time.fixedDeltaTime);
     }
 
     #endregion
@@ -109,7 +116,7 @@ public class PlayerController : MonoBehaviour
     
     IEnumerator JumpBufferCoroutine()
     {
-        yield return new WaitForSeconds(controllerSettings.jumpBufferTime);
+        yield return new WaitForSeconds(RuntimeSettings.jumpBufferTime);
         _wantsToJump = false;
     }
 
@@ -122,13 +129,14 @@ public class PlayerController : MonoBehaviour
         _alignToGround = false;
         
         //compensate if we are not in the desired height (the ground spring)
-        float yCorrection = controllerSettings.groundHeight - (transform.position.y - hit.point.y);
+        float yCorrection = RuntimeSettings.groundHeight - (transform.position.y - hit.point.y);
         
         // reset the gravity so the jump height will be correct
-        _currentGravity = controllerSettings.gravity;
+        _currentGravity = RuntimeSettings.gravity;
         
         Vector3 jumpVel = _rb.linearVelocity;
-        jumpVel.y = Mathf.Sqrt((controllerSettings.jumpHeight + yCorrection) * -2f * Physics.gravity.y * controllerSettings.gravity);
+        jumpVel.y = Mathf.Sqrt((RuntimeSettings.jumpHeight + yCorrection) * -2f * Physics.gravity.y * RuntimeSettings.gravity);
+        if(float.IsNaN(jumpVel.y)) return;
         _rb.linearVelocity = jumpVel;
     }
 
@@ -138,46 +146,47 @@ public class PlayerController : MonoBehaviour
         // isFalling is only true when we fall after a jump
         
         // if we are at the terminal gravity threshold we dont want to change the gravity
-        // the CapFallSpeed() has different cehavior
-        if(_rb.linearVelocity.y < -controllerSettings.terminalVelocity * controllerSettings.terminalGravityTH) return;
+        // the CapFallSpeed() has different behavior
+        if(_rb.linearVelocity.y < -RuntimeSettings.terminalVelocity * RuntimeSettings.terminalGravityTH) return;
         
         float targetGravity = CalculateTargetGravity(_rb.linearVelocity.y, _input.JumpHeld);
-        _currentGravity = Mathf.MoveTowards(_currentGravity, targetGravity, controllerSettings.gravityChangeSpeed * Time.fixedDeltaTime);
+        _currentGravity = Mathf.MoveTowards(_currentGravity, targetGravity, RuntimeSettings.gravityChangeSpeed * Time.deltaTime);
         
-        TryCutJump(_rb.linearVelocity.y, _input.JumpReleased);
+        TryCutJump(_rb.linearVelocity.y, !_input.JumpHeld || _input.JumpReleased);
     }
     
     private float CalculateTargetGravity(float velocityY, bool jumpHeld)
     {
         if (!_isJumping)
-            return controllerSettings.gravity;
+            return RuntimeSettings.gravity;
 
         if (!jumpHeld)
-            return controllerSettings.fallGravity;
+            return RuntimeSettings.fallGravity;
 
-        if (Mathf.Abs(velocityY) < controllerSettings.apexThreshold)
+        if (Mathf.Abs(velocityY) < RuntimeSettings.apexThreshold)
         {
             _isFalling = true;
-            return controllerSettings.apexGravity;
+            return RuntimeSettings.apexGravity;
         }
 
         if (velocityY < 0f)
         {
             _isFalling = true;
-            return controllerSettings.fallGravity;
+            return RuntimeSettings.fallGravity;
         }
 
-        return controllerSettings.gravity;
+        return RuntimeSettings.gravity;
     }
     
     private void TryCutJump(float velocityY, bool jumpReleased)
     {
-        if (!_isFalling && jumpReleased && velocityY > controllerSettings.apexThreshold)
+        if (!_isFalling && _isJumping && jumpReleased && velocityY > RuntimeSettings.apexThreshold)
         {
             Vector3 jumpVel = _rb.linearVelocity;
-            jumpVel.y *= controllerSettings.jumpCutMultiplier;
+            jumpVel.y *= RuntimeSettings.jumpCutMultiplier;
             _rb.linearVelocity = jumpVel;
             _isFalling = true;
+            print("cuttt");
         }
     }
     
@@ -196,15 +205,15 @@ public class PlayerController : MonoBehaviour
     { 
         //cap the fall speed
         Vector3 cappedVelocity = _rb.linearVelocity;
-        cappedVelocity.y = Mathf.Clamp(cappedVelocity.y, -controllerSettings.terminalVelocity, Mathf.Infinity);
+        cappedVelocity.y = Mathf.Clamp(cappedVelocity.y, -RuntimeSettings.terminalVelocity, Mathf.Infinity);
         _rb.linearVelocity = cappedVelocity;
         
         //smooth transition of the gravity towards reaching terminal velocity
-        float gravity = _isJumping ? controllerSettings.fallGravity : controllerSettings.gravity;
+        float gravity = _isJumping ? RuntimeSettings.fallGravity : RuntimeSettings.gravity;
         
-        _currentGravity = _rb.linearVelocity.y < -controllerSettings.terminalVelocity * controllerSettings.terminalGravityTH ? 
+        _currentGravity = _rb.linearVelocity.y < -RuntimeSettings.terminalVelocity * RuntimeSettings.terminalGravityTH ? 
                             Helper.MapValue(_rb.linearVelocity.y, 
-                            -controllerSettings.terminalVelocity, -controllerSettings.terminalVelocity * controllerSettings.terminalGravityTH
+                            -RuntimeSettings.terminalVelocity, -RuntimeSettings.terminalVelocity * RuntimeSettings.terminalGravityTH
                             , 0.1f, gravity) : 
                             _currentGravity;
     }
@@ -217,7 +226,7 @@ public class PlayerController : MonoBehaviour
 
     private void CheckGroundStatus()
     {
-        if (!_alignToGround && IsGrounded() && _rb.linearVelocity.y <= 0f)
+        if (!_alignToGround && IsGrounded() && _rb.linearVelocity.y <= 0.1f)
         {
             _alignToGround = true;
             _isJumping = false;
@@ -234,17 +243,17 @@ public class PlayerController : MonoBehaviour
 
         //if we are too close to the ground we want a stronger spring so we wont collide
         float distanceToGround = _collider.bounds.min.y - hit.point.y;
-        _springForceModifier = distanceToGround <= 0.2f ? 10f / controllerSettings.groundSpringStrength : 1f;
+        _springForceModifier = distanceToGround <= 0.2f ? 10f / RuntimeSettings.groundSpringStrength : 1f;
         
         // spring logic when on the ground
         if (isGrounded)
         {
             float currentY = transform.position.y;
-            float targetY = hit.point.y + controllerSettings.groundHeight;
+            float targetY = hit.point.y + RuntimeSettings.groundHeight;
             float displacement = targetY - currentY;
 
             // Apply spring force
-            float springForce = displacement * controllerSettings.groundSpringStrength * _springForceModifier - _rb.linearVelocity.y * controllerSettings.groundSpringDamping;
+            float springForce = displacement * RuntimeSettings.groundSpringStrength * _springForceModifier - _rb.linearVelocity.y * RuntimeSettings.groundSpringDamping;
 
             Vector3 targetVelocity = _rb.linearVelocity;
             targetVelocity.y += springForce;
@@ -261,12 +270,12 @@ public class PlayerController : MonoBehaviour
     {
         return Physics.BoxCast
         (
-            transform.position + controllerSettings.centerOffset, 
-            controllerSettings.halfExtents, 
+            transform.position + RuntimeSettings.centerOffset, 
+            RuntimeSettings.halfExtents, 
             Vector3.down, 
             out hit,Quaternion.identity,
-            controllerSettings.groundHeight + extraDistance, 
-            controllerSettings.groundLayer
+            RuntimeSettings.groundHeight + extraDistance, 
+            RuntimeSettings.groundLayer
         ); 
     }
     
@@ -294,7 +303,7 @@ public class PlayerController : MonoBehaviour
         {
             // Face movement direction in air
             Vector3 lookDirection = new Vector3(0, _rb.linearVelocity.y, _rb.linearVelocity.z);
-            Vector3 blendDirection = Vector3.Lerp(Vector3.forward, lookDirection, controllerSettings.airRotationBlend);
+            Vector3 blendDirection = Vector3.Lerp(Vector3.forward, lookDirection, RuntimeSettings.airRotationBlend);
             alignRotation = Quaternion.LookRotation(blendDirection);
         }
 
@@ -302,13 +311,13 @@ public class PlayerController : MonoBehaviour
         Vector3 euler = alignRotation.eulerAngles;
 
         // Apply Z-axis tilt based on player input
-        float inputRotation = -_input.HorizontalMovementInput * controllerSettings.turningAngle;
+        float inputRotation = -_input.HorizontalMovementInput * RuntimeSettings.turningAngle;
         euler.z = inputRotation;
         euler.y = 0f;
 
         // Apply final rotation
         Quaternion finalRotation = Quaternion.Euler(euler);
-        transform.rotation = Quaternion.Slerp(transform.rotation, finalRotation, controllerSettings.rotationSpeed * Time.fixedDeltaTime);
+        transform.rotation = Quaternion.Slerp(transform.rotation, finalRotation, RuntimeSettings.rotationSpeed * Time.fixedDeltaTime);
     }
 
     #endregion
@@ -318,12 +327,12 @@ public class PlayerController : MonoBehaviour
     
     private void OnDrawGizmos()
     {
-        float castDistance = controllerSettings.groundHeight;
-        Vector3 boxHalfExtents = controllerSettings.halfExtents; // Change to match your actual BoxCast size
+        float castDistance = DefaultSettings.groundHeight;
+        Vector3 boxHalfExtents = DefaultSettings.halfExtents; // Change to match your actual BoxCast size
         Vector3 castDirection = Vector3.down;
 
         // Calculate the center of the box at the end of the cast
-        Vector3 start = transform.position + controllerSettings.centerOffset;
+        Vector3 start = transform.position + DefaultSettings.centerOffset;
         Vector3 end = start + castDirection * castDistance;
         Quaternion orientation = Quaternion.identity;
 
