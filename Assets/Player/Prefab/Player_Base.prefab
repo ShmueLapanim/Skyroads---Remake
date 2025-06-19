@@ -357,6 +357,9 @@ GameObject:
   - component: {fileID: 1631397786901591756}
   - component: {fileID: 6106359650935980719}
   - component: {fileID: 7054364154398961396}
+  - component: {fileID: -722219271333652665}
+  - component: {fileID: 8366250962938230958}
+  - component: {fileID: -3415269241991583869}
   m_Layer: 0
   m_Name: Player_Base
   m_TagString: Untagged
@@ -432,4 +435,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47873b1b7c895cb4b8c80f264e7f8350, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  controllerSettings: {fileID: 11400000, guid: a1481891ba9e3c847ababb908fd18d33, type: 2}
+  <DefaultSettings>k__BackingField: {fileID: 0}
+--- !u!114 &-722219271333652665
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8204731936019537321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85ede37a6636cb242a168a9d0d075f4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentPlatformType: 0
+  platformLayer:
+    serializedVersion: 2
+    m_Bits: 64
+--- !u!114 &8366250962938230958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8204731936019537321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10f04bd896d723b4e9766f0812f13905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fuelText: {fileID: 0}
+  fuelConsumption: 1.4
+  startingFuel: 100
+--- !u!114 &-3415269241991583869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8204731936019537321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ed62ecd82b2e224ba6f8d1ed3208773, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deathTimer: 1
+  noFuelTimer: 3
