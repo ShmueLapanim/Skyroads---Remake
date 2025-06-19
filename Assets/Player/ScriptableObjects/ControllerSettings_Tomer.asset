@@ -14,12 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   horizontalSpeed: 10
   horizontalAcceleration: 30
-  horizontalAccelerationChangeSpeed: 100
-  breakingModifer: 1.75
+  horizontalChangeAcceleration: 50
+  horizontalDeceleration: 30
+  horizontalAccelerationChangeSpeed: 50
   terminalHorizontalSpeedTH: 0.6
-  autoBrake: 1
   forwardSpeed: 12
   forwardAcceleration: 12
+  forwardDeceleration: 20
   groundLayer:
     serializedVersion: 2
     m_Bits: 72
