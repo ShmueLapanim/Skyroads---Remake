@@ -41,7 +41,7 @@ public class PlayerControllerSettings : ScriptableObject
     public Vector3 halfExtents;
     
     [Header("Ground Alignment Settings")]
-    [Range(0.5f, 10f)] public float groundHeight;
+    [Range(0f, 10f)] public float groundHeight;
     [Range(0f,30f)]public float groundSpringStrength;
     [Range(0f,1f)] public float groundSpringDamping;
     

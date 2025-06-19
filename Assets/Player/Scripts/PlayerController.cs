@@ -337,7 +337,7 @@ public class PlayerController : MonoBehaviour
         Quaternion orientation = Quaternion.identity;
 
         // Draw the starting box (optional)
-        Gizmos.color = Color.green;
+        Gizmos.color = Color.red;
         Gizmos.matrix = Matrix4x4.TRS(start, orientation, Vector3.one);
         Gizmos.DrawWireCube(Vector3.zero, boxHalfExtents * 2f);
 
