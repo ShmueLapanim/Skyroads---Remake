@@ -345,30 +345,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1863031657682238839, guid: 6035edefdbd65144a813ff6436fb7616, type: 3}
-      propertyPath: m_Layer
-      value: 7
+    - target: {fileID: 4077750060202775888, guid: 6035edefdbd65144a813ff6436fb7616, type: 3}
+      propertyPath: bulletSpeed
+      value: 30
       objectReference: {fileID: 0}
-    - target: {fileID: 2270245278583448040, guid: 6035edefdbd65144a813ff6436fb7616, type: 3}
-      propertyPath: m_Layer
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 3146809572840959472, guid: 6035edefdbd65144a813ff6436fb7616, type: 3}
-      propertyPath: m_Material
+    - target: {fileID: 4077750060202775888, guid: 6035edefdbd65144a813ff6436fb7616, type: 3}
+      propertyPath: bulletPrefab
       value: 
-      objectReference: {fileID: 13400000, guid: 87c524d0d75d8ff49a84f892540d8fc0, type: 2}
-    - target: {fileID: 3870967785272909677, guid: 6035edefdbd65144a813ff6436fb7616, type: 3}
-      propertyPath: m_Layer
-      value: 7
+      objectReference: {fileID: 3912385704173586788, guid: 214c0fb6437c66647874a3e22f0bd6df, type: 3}
+    - target: {fileID: 4077750060202775888, guid: 6035edefdbd65144a813ff6436fb7616, type: 3}
+      propertyPath: bulletLifeTime
+      value: 2
       objectReference: {fileID: 0}
-    - target: {fileID: 4212592281186280661, guid: 6035edefdbd65144a813ff6436fb7616, type: 3}
-      propertyPath: m_Layer
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 5404970478328549636, guid: 6035edefdbd65144a813ff6436fb7616, type: 3}
-      propertyPath: fuelText
-      value: 
-      objectReference: {fileID: 1043900900}
     - target: {fileID: 7383848387121864180, guid: 6035edefdbd65144a813ff6436fb7616, type: 3}
       propertyPath: m_LocalPosition.x
       value: 9.66
@@ -413,26 +401,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player_Tomer_Variant
       objectReference: {fileID: 0}
-    - target: {fileID: 7554837596202100468, guid: 6035edefdbd65144a813ff6436fb7616, type: 3}
-      propertyPath: m_Layer
-      value: 7
-      objectReference: {fileID: 0}
     - target: {fileID: 7863241042901386227, guid: 6035edefdbd65144a813ff6436fb7616, type: 3}
       propertyPath: fuelText
       value: 
       objectReference: {fileID: 1043900900}
-    - target: {fileID: 7863241042901386227, guid: 6035edefdbd65144a813ff6436fb7616, type: 3}
-      propertyPath: fuelConsumption
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8932748100808338258, guid: 6035edefdbd65144a813ff6436fb7616, type: 3}
-      propertyPath: m_Layer
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 9187347932556144064, guid: 6035edefdbd65144a813ff6436fb7616, type: 3}
-      propertyPath: m_Layer
-      value: 7
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -3791,7 +3763,7 @@ GameObject:
   - component: {fileID: 1283669319}
   - component: {fileID: 1283669318}
   - component: {fileID: 1283669317}
-  m_Layer: 3
+  m_Layer: 8
   m_Name: Barrier (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4858,7 +4830,7 @@ GameObject:
   - component: {fileID: 1593245248}
   - component: {fileID: 1593245247}
   - component: {fileID: 1593245246}
-  m_Layer: 3
+  m_Layer: 8
   m_Name: Barrier
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4967,7 +4939,7 @@ GameObject:
   - component: {fileID: 1599196715}
   - component: {fileID: 1599196714}
   - component: {fileID: 1599196713}
-  m_Layer: 3
+  m_Layer: 8
   m_Name: Barrier (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
