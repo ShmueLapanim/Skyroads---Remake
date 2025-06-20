@@ -36,75 +36,83 @@ This shader has NOT been tested on any other PC configuration except the followi
     DirectX: 11
 ____________________________________________________________________________________________________________________________________________
 */
-
-Shader "Ultimate 10+ Shaders/Edge Detection" /* The edge detection algorithm that is implemented in this shader is named "Sobel Edge Detection" */
+Shader "Ultimate 10+ URP/EdgeDetection_Sobel"
 {
     Properties
     {
-        _Color ("Color", Color) = (1,1,1,1)
+        _Color ("Edge Color", Color) = (1,1,1,1)
+        _MainTex ("Screen Texture", 2D) = "white" {}
     }
+
     SubShader
     {
-        Tags { "Queue"="Transparent" }
-        Cull Back
-
-        GrabPass { }
-
+        Tags { "RenderPipeline"="UniversalRenderPipeline" }
         Pass
         {
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            #include "UnityCG.cginc"
+            Name "EdgeDetection"
+            ZTest Always
+            ZWrite Off
+            Cull Off
+            Blend SrcAlpha OneMinusSrcAlpha
 
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float3 normal : NORMAL;
-            };    
+            HLSLPROGRAM
+            #pragma vertex Vert
+            #pragma fragment Frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
-            struct v2f
+            struct Attributes
             {
-                float4 position : POSITION;
-                float4 screenPos : TEXCOORD0;
+                float4 positionOS : POSITION;
+                float2 uv : TEXCOORD0;
             };
 
-            fixed4 _Color;
-            sampler2D _GrabTexture : register(s0);
-
-            v2f vert(appdata input)
+            struct Varyings
             {
-                v2f output;
+                float4 positionHCS : SV_POSITION;
+                float2 uv : TEXCOORD0;
+            };
 
-                output.position = UnityObjectToClipPos(input.vertex);
-                output.screenPos = output.position;
+            sampler2D _MainTex;
+            float4 _MainTex_TexelSize;
+            float4 _Color;
 
+            Varyings Vert(Attributes input)
+            {
+                Varyings output;
+                output.positionHCS = TransformObjectToHClip(input.positionOS.xyz);
+                output.uv = input.uv;
                 return output;
             }
 
-            half4 pixel;
-            half2 uv;
-            fixed onePixelW, onePixelH;
-            half4 frag(v2f input) : SV_Target
-            {    
-                uv = input.screenPos.xy / input.screenPos.w;
-                uv.x = (uv.x + 1) * .5;
-                uv.y = 1.0 - (uv.y + 1) * .5;
+            float4 Frag(Varyings input) : SV_Target
+            {
+                float2 uv = input.uv;
+                float2 texel = _MainTex_TexelSize.xy;
 
-                onePixelW = 1.0 / _ScreenParams.x;
-                onePixelH = 1.0 / _ScreenParams.y;
+                // Sobel sampling
+                float3 gx = 0;
+                float3 gy = 0;
 
-                pixel = 0;
-                pixel = abs(
-                        tex2D(_GrabTexture, half2(uv.x - onePixelW, uv.y)) - 
-                        tex2D(_GrabTexture, half2(uv.x + onePixelW, uv.y)) + 
-                        tex2D(_GrabTexture, half2(uv.x, uv.y + onePixelH)) -
-                        tex2D(_GrabTexture, half2(uv.x, uv.y - onePixelH))
-                    );
+                gx += -1 * tex2D(_MainTex, uv + texel * float2(-1, -1)).rgb;
+                gx += -2 * tex2D(_MainTex, uv + texel * float2(-1,  0)).rgb;
+                gx += -1 * tex2D(_MainTex, uv + texel * float2(-1,  1)).rgb;
+                gx +=  1 * tex2D(_MainTex, uv + texel * float2( 1, -1)).rgb;
+                gx +=  2 * tex2D(_MainTex, uv + texel * float2( 1,  0)).rgb;
+                gx +=  1 * tex2D(_MainTex, uv + texel * float2( 1,  1)).rgb;
 
-                return pixel * _Color;
-            }    
-            ENDCG
+                gy += -1 * tex2D(_MainTex, uv + texel * float2(-1, -1)).rgb;
+                gy += -2 * tex2D(_MainTex, uv + texel * float2( 0, -1)).rgb;
+                gy += -1 * tex2D(_MainTex, uv + texel * float2( 1, -1)).rgb;
+                gy +=  1 * tex2D(_MainTex, uv + texel * float2(-1,  1)).rgb;
+                gy +=  2 * tex2D(_MainTex, uv + texel * float2( 0,  1)).rgb;
+                gy +=  1 * tex2D(_MainTex, uv + texel * float2( 1,  1)).rgb;
+
+                float edge = length(gx + gy);
+                return float4(_Color.rgb * edge, edge);
+            }
+
+            ENDHLSL
         }
     }
+    FallBack Off
 }

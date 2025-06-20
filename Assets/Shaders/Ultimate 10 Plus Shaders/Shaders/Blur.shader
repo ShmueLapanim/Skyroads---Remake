@@ -29,97 +29,82 @@ This shader has NOT been tested on any other PC configuration except the followi
 ____________________________________________________________________________________________________________________________________________
 */
 
-Shader "Ultimate 10+ Shaders/Blur"
+Shader "Ultimate 10+ URP/Blur"
 {
     Properties
     {
-        _Color ("Color", Color) = (1,1,1,1)
-        _BlurAmount ("Blur Amount", Range(0, 0.03)) = 0.0128
+        _BlurAmount ("Blur Amount", Range(0, 5)) = 1
+        _MainTex ("Base Texture", 2D) = "white" {}
+        _Color ("Tint", Color) = (1,1,1,1)
     }
+
     SubShader
     {
-        Tags { "Queue"="Transparent" }
-        Cull Back
-        ZTest Always
-
-        GrabPass { }
-
+        Tags { "RenderPipeline"="UniversalRenderPipeline" }
         Pass
         {
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
+            Name "URP_BlurPass"
+            ZTest Always
+            ZWrite Off
+            Cull Off
+            Blend SrcAlpha OneMinusSrcAlpha
 
-            #include "UnityCG.cginc"
+            HLSLPROGRAM
+            #pragma vertex Vert
+            #pragma fragment Frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
-            struct appdata
+            struct Attributes
             {
-                float4 vertex : POSITION;
-                float3 normal : NORMAL;
-            };    
-
-            struct v2f
-            {
-                float4 position : POSITION;
-                float4 screenPos : TEXCOORD0;
+                float4 positionOS : POSITION;
+                float2 uv : TEXCOORD0;
             };
 
-            half _BlurAmount;
-            fixed4 _Color;
-            sampler2D _GrabTexture : register(s0);
-
-            v2f vert(appdata input)
+            struct Varyings
             {
-                v2f output;
+                float4 positionHCS : SV_POSITION;
+                float2 uv : TEXCOORD0;
+            };
 
-                output.position = UnityObjectToClipPos(input.vertex);
-                output.screenPos = output.position;
+            sampler2D _MainTex;
+            float4 _MainTex_TexelSize;
+            float _BlurAmount;
+            float4 _Color;
 
-                return output;
+            Varyings Vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+                OUT.uv = IN.uv;
+                return OUT;
             }
 
-            half4 pixel;
-            half2 uv;
-            fixed i = 0;
-            half iBlur;
-            half4 frag(v2f input) : SV_Target
-            {    
-                uv = input.screenPos.xy / input.screenPos.w;
-                uv.x = (uv.x + 1) * .5;
-                uv.y = 1.0 - (uv.y + 1) * .5;
+            float4 Frag(Varyings IN) : SV_Target
+            {
+                float2 uv = IN.uv;
+                float2 offset = _MainTex_TexelSize.xy * _BlurAmount;
 
-                pixel = 0;
+                float4 col = float4(0,0,0,0);
 
-                pixel += tex2D(_GrabTexture, half2(uv.x + 1.5 * _BlurAmount, uv.y + 0.5 * _BlurAmount));
-                pixel += tex2D(_GrabTexture, half2(uv.x + 1.5 * _BlurAmount, uv.y - 0.5 * _BlurAmount));
-                pixel += tex2D(_GrabTexture, half2(uv.x + 1.5 * _BlurAmount, uv.y - 1.5 * _BlurAmount));
-                pixel += tex2D(_GrabTexture, half2(uv.x + 1.5 * _BlurAmount, uv.y - 2.5 * _BlurAmount));
-                pixel += tex2D(_GrabTexture, half2(uv.x + 0.5 * _BlurAmount, uv.y + 2.5 * _BlurAmount));
-                pixel += tex2D(_GrabTexture, half2(uv.x + 0.5 * _BlurAmount, uv.y + 1.5 * _BlurAmount));
+                col += tex2D(_MainTex, uv + offset * float2(-1, -1));
+                col += tex2D(_MainTex, uv + offset * float2( 0, -1));
+                col += tex2D(_MainTex, uv + offset * float2( 1, -1));
 
-                pixel += tex2D(_GrabTexture, half2(uv.x + 0.5 * _BlurAmount, uv.y + 0.5 * _BlurAmount));
-                pixel += tex2D(_GrabTexture, half2(uv.x + 0.5 * _BlurAmount, uv.y - 0.5 * _BlurAmount));
+                col += tex2D(_MainTex, uv + offset * float2(-1,  0));
+                col += tex2D(_MainTex, uv);
+                col += tex2D(_MainTex, uv + offset * float2( 1,  0));
 
-                pixel += tex2D(_GrabTexture, half2(uv.x + 0.5 * _BlurAmount, uv.y - 1.5 * _BlurAmount));
-                pixel += tex2D(_GrabTexture, half2(uv.x + 0.5 * _BlurAmount, uv.y - 2.5 * _BlurAmount));
-                pixel += tex2D(_GrabTexture, half2(uv.x - 0.5 * _BlurAmount, uv.y + 2.5 * _BlurAmount));
-                pixel += tex2D(_GrabTexture, half2(uv.x - 0.5 * _BlurAmount, uv.y + 1.5 * _BlurAmount));
-                
-                pixel += tex2D(_GrabTexture, half2(uv.x - 0.5 * _BlurAmount, uv.y + 0.5 * _BlurAmount));
-                pixel += tex2D(_GrabTexture, half2(uv.x - 0.5 * _BlurAmount, uv.y - 0.5 * _BlurAmount));
+                col += tex2D(_MainTex, uv + offset * float2(-1,  1));
+                col += tex2D(_MainTex, uv + offset * float2( 0,  1));
+                col += tex2D(_MainTex, uv + offset * float2( 1,  1));
 
-                pixel += tex2D(_GrabTexture, half2(uv.x - 0.5 * _BlurAmount, uv.y - 1.5 * _BlurAmount));
-                pixel += tex2D(_GrabTexture, half2(uv.x - 0.5 * _BlurAmount, uv.y - 2.5 * _BlurAmount));
-                pixel += tex2D(_GrabTexture, half2(uv.x - 1.5 * _BlurAmount, uv.y + 2.5 * _BlurAmount));
-                pixel += tex2D(_GrabTexture, half2(uv.x - 1.5 * _BlurAmount, uv.y + 1.5 * _BlurAmount));
-                pixel += tex2D(_GrabTexture, half2(uv.x - 1.5 * _BlurAmount, uv.y + 0.5 * _BlurAmount));
-                pixel += tex2D(_GrabTexture, half2(uv.x - 1.5 * _BlurAmount, uv.y - 0.5 * _BlurAmount));
+                col /= 9.0;
 
-				pixel += tex2D(_GrabTexture, half2(uv.x, uv.y));
-
-                return (pixel / 20.0) * _Color;
+                return col * _Color;
             }
-            ENDCG
+            ENDHLSL
         }
     }
+    FallBack Off
 }
+

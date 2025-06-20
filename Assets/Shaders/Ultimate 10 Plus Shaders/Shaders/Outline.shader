@@ -29,99 +29,115 @@ This shader has NOT been tested on any other PC configuration except the followi
 ____________________________________________________________________________________________________________________________________________
 */
 
-Shader "Ultimate 10+ Shaders/Outline"
+Shader "Ultimate 10+ URP/Outline"
 {
     Properties
     {
-        _Color ("Color", Color) = (1,1,1,1)
-        _MainTex ("Albedo (RGB)", 2D) = "white" {}
-
-        _OutlineColor ("Outline Color", Color) = (1,1,1,1)
-        _OutlineWidth ("Outline Width", Range(0, 4)) = 0.25
-        
-        [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 2
+        _MainTex ("Main Texture", 2D) = "white" {}
+        _BaseColor ("Base Color", Color) = (1,1,1,1)
+        _OutlineColor ("Outline Color", Color) = (0,0,0,1)
+        _OutlineThickness ("Outline Thickness", Range(0, 0.1)) = 0.02
     }
+
     SubShader
     {
-        Tags { "RenderType"="Geometry" "Queue"="Transparent" }
+        Tags { "RenderPipeline"="UniversalRenderPipeline" "RenderType"="Opaque" }
         LOD 200
-        Cull [_Cull]
 
-        Pass{
-            ZWrite Off
-            CGPROGRAM
-            
+        // Pass 1: Outline
+        Pass
+        {
+            Name "Outline"
+            Tags { "LightMode" = "UniversalForward" }
+
+            Cull Front
+            ZWrite On
+            ZTest LEqual
+
+            HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_fog
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
-            struct appdata {
-                float4 vertex : POSITION;
-                float4 tangent : TANGENT;
-                float3 normal : NORMAL;
-                float4 texcoord : TEXCOORD0;
-                fixed4 color : COLOR;
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float3 normalOS : NORMAL;
             };
 
-            struct v2f{
-                float4 pos : SV_POSITION;
-                float3 normal : NORMAL;
+            struct Varyings
+            {
+                float4 positionHCS : SV_POSITION;
             };
 
-            fixed4 _OutlineColor;
-            half _OutlineWidth;
+            float _OutlineThickness;
 
-            v2f vert(appdata input){
-                input.vertex += float4(input.normal * _OutlineWidth, 1);
-
-                v2f output;
-
-                output.pos = UnityObjectToClipPos(input.vertex);
-                output.normal = mul(unity_ObjectToWorld, input.normal);
-
-                return output;
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                float3 norm = normalize(IN.normalOS);
+                float3 offset = norm * _OutlineThickness;
+                float4 pos = IN.positionOS + float4(offset, 0);
+                OUT.positionHCS = TransformObjectToHClip(pos.xyz);
+                return OUT;
             }
 
-            fixed4 frag(v2f input) : SV_Target
+            float4 _OutlineColor;
+
+            float4 frag(Varyings IN) : SV_Target
             {
                 return _OutlineColor;
             }
-
-            ENDCG
+            ENDHLSL
         }
 
-        ZWrite On
-        CGPROGRAM
-        // Physically based Standard lighting model, and enable shadows on all light types
-        #pragma surface surf Standard fullforwardshadows
-
-        #ifndef SHADER_API_D3D11
-            #pragma target 3.0
-        #else
-            #pragma target 4.0
-        #endif
-
-        // Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
-        // See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
-        // #pragma instancing_options assumeuniformscaling
-        UNITY_INSTANCING_BUFFER_START(Props)
-            // put more per-instance properties here
-        UNITY_INSTANCING_BUFFER_END(Props)
-
-        struct Input
+        // Pass 2: Main Surface
+        Pass
         {
-            float2 uv_MainTex;
-        };
+            Name "ForwardLit"
+            Tags { "LightMode" = "UniversalForward" }
 
-        fixed4 _Color;
-        sampler2D _MainTex;
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_fog
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
-        fixed4 pixel;
-        void surf (Input IN, inout SurfaceOutputStandard o)
-        {
-            pixel = tex2D (_MainTex, IN.uv_MainTex) * _Color;
-            o.Albedo = pixel.rgb;
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float2 uv : TEXCOORD0;
+            };
+
+            struct Varyings
+            {
+                float2 uv : TEXCOORD0;
+                float4 positionHCS : SV_POSITION;
+            };
+
+            sampler2D _MainTex;
+            float4 _BaseColor;
+            float4 _MainTex_ST;
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.uv = TRANSFORM_TEX(IN.uv, _MainTex);
+                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+                return OUT;
+            }
+
+            float4 frag(Varyings IN) : SV_Target
+            {
+                float4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv);
+                return texColor * _BaseColor;
+            }
+
+            ENDHLSL
         }
-        ENDCG
     }
-    FallBack "Diffuse"
+
+    FallBack Off
 }
+
