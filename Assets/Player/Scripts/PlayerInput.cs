@@ -21,11 +21,6 @@ public class PlayerInput : MonoBehaviour, PlayerControls.IMovementActions
         DisableInput();
     }
 
-    private void Update()
-    {
-        print(JumpHeld);
-    }
-
     private void LateUpdate()
     {
         JumpPressed = false;
