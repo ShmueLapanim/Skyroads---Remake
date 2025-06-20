@@ -100,7 +100,7 @@ public class PlayerController : MonoBehaviour
 
     #endregion
     
-    #region Jumping and Gravity
+    #region Jumping
     
     void HandleJumpInput()
     {
@@ -182,9 +182,6 @@ public class PlayerController : MonoBehaviour
     {
         if (!_isFalling && _isJumping && jumpReleased && velocityY > RuntimeSettings.apexThreshold)
         {
-            /*Vector3 jumpVel = _rb.linearVelocity;
-            jumpVel.y *= RuntimeSettings.jumpCutMultiplier;
-            _rb.linearVelocity = jumpVel;*/
             StartCoroutine(JumpCutCoroutine());
             _isFalling = true;
         }
@@ -194,16 +191,19 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 targetJumpVel;
         targetJumpVel.y = RuntimeSettings.jumpCutMultiplier * _rb.linearVelocity.y;
-        print("1");
+        
         while (_rb.linearVelocity.y > targetJumpVel.y)
         {
             Vector3 jumpVel = _rb.linearVelocity;
             jumpVel.y = Mathf.MoveTowards(_rb.linearVelocity.y, targetJumpVel.y, RuntimeSettings.jumpCutAcceleration * Time.fixedDeltaTime);
             _rb.linearVelocity = jumpVel;
-            print("2");
             yield return new WaitForFixedUpdate();
         }
     }
+    
+    #endregion
+
+    #region Gravity
     
     void ApplyGravity()
     {
@@ -232,8 +232,6 @@ public class PlayerController : MonoBehaviour
                             , 0.1f, gravity) : 
                             _currentGravity;
     }
-
-    
     
     #endregion
     
