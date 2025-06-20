@@ -417,6 +417,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 7863241042901386227, guid: 6035edefdbd65144a813ff6436fb7616, type: 3}
+      propertyPath: fuelText
+      value: 
+      objectReference: {fileID: 1043900900}
     - target: {fileID: 8932748100808338258, guid: 6035edefdbd65144a813ff6436fb7616, type: 3}
       propertyPath: m_Layer
       value: 7
