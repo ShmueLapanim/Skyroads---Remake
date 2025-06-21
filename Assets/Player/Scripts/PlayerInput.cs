@@ -11,7 +11,7 @@ public class PlayerInput : MonoBehaviour, PlayerControls.IActionsActions
     public bool JumpReleased { get; private set; }
     public bool JumpHeld { get; private set; }
     
-    public bool ShootPressed { get; private set; }
+    public bool ShootHeld { get; private set; }
     
     private void OnEnable()
     {
@@ -27,7 +27,6 @@ public class PlayerInput : MonoBehaviour, PlayerControls.IActionsActions
     {
         JumpPressed = false;
         JumpReleased = false;
-        ShootPressed = false;
     }
     
 
@@ -69,7 +68,6 @@ public class PlayerInput : MonoBehaviour, PlayerControls.IActionsActions
 
     public void OnShoot(InputAction.CallbackContext context)
     {
-        if (context.performed)
-            ShootPressed = true;
+        ShootHeld = context.ReadValueAsButton();
     }
 }

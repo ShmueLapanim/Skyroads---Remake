@@ -9,6 +9,7 @@ public class Bullet : MonoBehaviour
     private Rigidbody _rb;
     
     private float _travelSpeed = 10f;
+    public float Damage {private set; get;}
     private float _lifeTime = 5f;
 
     void Awake()
@@ -29,6 +30,7 @@ public class Bullet : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (((1 << other.gameObject.layer) & LayerMask.GetMask("Player")) != 0) return;
+        if (other.gameObject.layer == gameObject.layer) return;
 
         if (((1 << other.gameObject.layer) & LayerMask.GetMask("Barrier")) != 0 &&
             other.TryGetComponent(out IBulletInteractable bulletInteractable))
@@ -40,6 +42,9 @@ public class Bullet : MonoBehaviour
         Die();
     }
 
+    
+    
+    
     void ApplyMovement()
     {
         Vector3 velocity = _rb.linearVelocity;
@@ -58,9 +63,10 @@ public class Bullet : MonoBehaviour
         Die();
     }
 
-    public void SetVariables(float travelSpeed, float lifeTime)
+    public void SetVariables(float travelSpeed, float damage, float lifeTime)
     {
         _travelSpeed = travelSpeed;
+        Damage = damage;
         _lifeTime = lifeTime;
     }
 }

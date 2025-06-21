@@ -504,6 +504,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bf67b82c12ad5a4fa903a6a0fb862f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bulletPrefab: {fileID: 3912385704173586788, guid: 214c0fb6437c66647874a3e22f0bd6df, type: 3}
+  bulletSpawnOffset: {x: 0, y: 0, z: 1.43}
+  fireRate: 0.2
+  bulletSpeed: 50
+  bulletDamage: 40
+  bulletLifeTime: 1
 --- !u!114 &-722219271333652665
 MonoBehaviour:
   m_ObjectHideFlags: 0

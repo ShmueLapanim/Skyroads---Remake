@@ -124,5 +124,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   acceleration: 15
   deceleration: 5
-  speed: 12
+  speed: 15
   forwardAcceleration: 5
