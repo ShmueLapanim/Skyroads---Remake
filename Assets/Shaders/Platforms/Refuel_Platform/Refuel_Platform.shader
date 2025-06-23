@@ -28,6 +28,13 @@
         _DistortTexColor ("Distorted Texture Color", Color) = (0, 0, 0, 1)
         _DistortSpeed ("Distortion Speed", Float) = 1.0
         _DistortIntensity ("Distortion Intensity", Float) = 0.05
+
+        [NoScaleOffset]_BaseOverlayTex ("Base Overlay Texture", 2D) = "white" {}
+        _BaseOverlayColor ("Base Overlay Color", Color) = (0, 0, 0, 0)
+        [HDR]_BaseOverlayGlowColor ("Base Overlay Glow Color", Color) = (1, 1, 1, 1)
+        _BaseOverlayFillDuration ("Base Overlay Fill Duration", Float) = 1.0
+        _BaseOverlayHoldDuration ("Base Overlay Hold Duration", Float) = 1.0
+        _BaseOverlayFadeDuration ("Base Overlay Fade Duration", Float) = 1.0
     }
 
     SubShader
@@ -82,6 +89,14 @@
             float _DistortSpeed;
             float _DistortIntensity;
 
+            TEXTURE2D(_BaseOverlayTex);
+            SAMPLER(sampler_BaseOverlayTex);
+            float4 _BaseOverlayColor;
+            float4 _BaseOverlayGlowColor;
+            float _BaseOverlayFillDuration;
+            float _BaseOverlayHoldDuration;
+            float _BaseOverlayFadeDuration;
+
             Varyings vert(Attributes v)
             {
                 Varyings o;
@@ -117,8 +132,33 @@
                 if (normal.y > 0.9)
                 {
                     float2 uv = i.objectPos.xz * 0.5 + 0.5;
-                    float circleSum = 0;
 
+                    // Base Overlay pass (layered behind lightning)
+                    float overlayCycleTime = _BaseOverlayFillDuration + _BaseOverlayHoldDuration + _BaseOverlayFadeDuration;
+                    float overlayT = fmod(_Time.y, overlayCycleTime);
+
+                    float overlayMask = 0.0;
+                    if (overlayT < _BaseOverlayFillDuration)
+                    {
+                        float overlayPhase = overlayT / _BaseOverlayFillDuration;
+                        overlayMask = smoothstep(0.0, 1.0, overlayPhase - uv.y);
+                    }
+                    else if (overlayT < _BaseOverlayFillDuration + _BaseOverlayHoldDuration)
+                    {
+                        overlayMask = 1.0;
+                    }
+                    else
+                    {
+                        float fadeT = (overlayT - _BaseOverlayFillDuration - _BaseOverlayHoldDuration) / _BaseOverlayFadeDuration;
+                        overlayMask = 1.0 - saturate(fadeT);
+                    }
+
+                    float4 baseOverlayTex = SAMPLE_TEXTURE2D(_BaseOverlayTex, sampler_BaseOverlayTex, uv);
+                    float4 overlayColor = lerp(_BaseOverlayColor, _BaseOverlayGlowColor, overlayMask);
+                    baseColor.rgb += baseOverlayTex.rgb * overlayColor.rgb * baseOverlayTex.a;
+
+                    // 🔴 Circles pass (above base overlay, below lightning)
+                    float circleSum = 0;
                     [unroll(20)]
                     for (int c = 0; c < 20; c++)
                     {
@@ -147,22 +187,21 @@
 
                         circleSum += circle;
                     }
-
                     circleSum = saturate(circleSum);
                     baseColor.rgb = lerp(baseColor.rgb, _CircleColor.rgb, circleSum);
                     baseColor.a = lerp(baseColor.a, _CircleColor.a, circleSum);
 
+                    // Lightning pass (above overlay + circles)
                     float cycleTime = _LightningFillDuration + _LightningHoldDuration + _LightningFadeDuration;
                     float t = fmod(_Time.y, cycleTime);
 
-                    float2 lightningUV = uv;
-                    float4 lightningTex = SAMPLE_TEXTURE2D(_LightningTex, sampler_LightningTex, lightningUV);
+                    float4 lightningTex = SAMPLE_TEXTURE2D(_LightningTex, sampler_LightningTex, uv);
                     float lightningMask = 0.0;
 
                     if (t < _LightningFillDuration)
                     {
                         float phase = t / _LightningFillDuration;
-                        float fillMask = smoothstep(0.0, 1.0, phase - lightningUV.y);
+                        float fillMask = smoothstep(0.0, 1.0, phase - uv.y);
                         lightningMask = lightningTex.r * fillMask;
                     }
                     else if (t < _LightningFillDuration + _LightningHoldDuration)
@@ -182,7 +221,7 @@
                         baseColor.a = lerp(baseColor.a, _LightningColor.a, lightningMask);
                     }
 
-                    // 📦 Distorted texture overlay
+                    // Distorted texture pass
                     float2 distortUV = uv + sin(float2(uv.y, uv.x) * 20 + _Time.y * _DistortSpeed) * _DistortIntensity;
                     float4 distortTex = SAMPLE_TEXTURE2D(_DistortedTex, sampler_DistortedTex, distortUV);
                     baseColor.rgb += distortTex.rgb * _DistortTexColor.rgb * distortTex.a;

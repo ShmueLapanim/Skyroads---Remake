@@ -23,6 +23,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _BaseOverlayTex:
+        m_Texture: {fileID: 2800000, guid: 577c1423813e21143b40ba6f80bbde2a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _CircleTex:
         m_Texture: {fileID: 2800000, guid: 827cfc83afa113f4b9f699ad6afc5941, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -32,15 +36,20 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _LightningTex:
-        m_Texture: {fileID: 2800000, guid: 0d9b03dc88f07974892ade6e70933a18, type: 3}
+        m_Texture: {fileID: 2800000, guid: ee96423770dd3d34a9d5bc30406d4734, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _CircleCount: 20
-    - _CircleLifetime: 5
-    - _CircleSize: 0.01
-    - _CircleSpeed: 0.0001
+    - _BaseOverlayFadeDuration: 1
+    - _BaseOverlayFillDuration: 0.5
+    - _BaseOverlayGlowCycleDuration: 1
+    - _BaseOverlayGlowFillDuration: 1
+    - _BaseOverlayHoldDuration: 1
+    - _CircleCount: 11
+    - _CircleLifetime: 20
+    - _CircleSize: 0.007
+    - _CircleSpeed: 0.0009
     - _DistortIntensity: 0.05
     - _DistortSpeed: 1
     - _GradientYEnd1: 0.3
@@ -54,19 +63,21 @@ Material:
     - _LightningCycleDuration: 1
     - _LightningFadeDuration: 1
     - _LightningFadePercent: 0.16
-    - _LightningFillDuration: 0.3
-    - _LightningHoldDuration: 3
+    - _LightningFillDuration: 0.5
+    - _LightningHoldDuration: 1
     - _LightningHoldPercent: 0.14
     - _MoveSpeed: 12.39
     m_Colors:
     - _BaseColor: {r: 0.19999996, g: 0, b: 0.39999998, a: 1}
-    - _CircleColor: {r: 0.5008978, g: 0, b: 0.7058824, a: 1}
+    - _BaseOverlayColor: {r: 0.2905661, g: 0.2905661, b: 0.2905661, a: 1}
+    - _BaseOverlayGlowColor: {r: 0.59636486, g: 0, b: 3.4822023, a: 1}
+    - _CircleColor: {r: 0, g: 0.87521863, b: 1, a: 1}
     - _DistortTexColor: {r: 0, g: 0.446647, b: 0.6754716, a: 1}
     - _GradientColor1: {r: 0.29803923, g: 0, b: 0.5019608, a: 1}
     - _GradientColor2: {r: 0.7646816, g: 0.42075467, b: 1, a: 1}
     - _GradientColor3: {r: 0.26214626, g: 0, b: 0.4415095, a: 1}
     - _GradientColor4: {r: 0.82600236, g: 0.57169807, b: 1, a: 1}
-    - _LightningColor: {r: 0, g: 377.4744, b: 766.99603, a: 1}
+    - _LightningColor: {r: 0, g: 23.59215, b: 47.937252, a: 1}
     - _MainColor: {r: 1, g: 1, b: 1, a: 1}
     - _UVMax: {r: 1, g: 1, b: 0, a: 0}
     - _UVMin: {r: -1, g: -1, b: 0, a: 0}
