@@ -31,7 +31,7 @@ MonoBehaviour:
   jumpBufferTime: 0.1
   fallGravity: 6.52
   apexGravity: 1.5
-  apexThreshold: 2
+  apexThreshold: 4.66
   gravityChangeSpeed: 5
   jumpCutMultiplier: 0.65
   centerOffset: {x: 0, y: 0, z: 0}
