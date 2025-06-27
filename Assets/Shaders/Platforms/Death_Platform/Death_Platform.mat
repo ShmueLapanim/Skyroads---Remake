@@ -28,7 +28,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NoiseTex:
-        m_Texture: {fileID: 2800000, guid: 201c88b071ee1ab49a42d47a51409268, type: 3}
+        m_Texture: {fileID: 2800000, guid: 6d338b81213410140b5be6b8b964d455, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
@@ -36,7 +36,7 @@ Material:
     - _Amplitude: 0.1
     - _FogHeight: 1.5
     - _FogSpeed: 0.19
-    - _FogStrength: 0.28
+    - _FogStrength: 0.4
     - _LavaSpeed: 0.3
     - _NoiseScale: 3
     - _PatternScale: 6.42
