@@ -41,11 +41,11 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BaseOverlayFadeDuration: 1
-    - _BaseOverlayFillDuration: 0.5
+    - _BaseOverlayFadeDuration: 2
+    - _BaseOverlayFillDuration: 0.2
     - _BaseOverlayGlowCycleDuration: 1
     - _BaseOverlayGlowFillDuration: 1
-    - _BaseOverlayHoldDuration: 1
+    - _BaseOverlayHoldDuration: 2
     - _CircleCount: 11
     - _CircleLifetime: 20
     - _CircleSize: 0.007
@@ -61,12 +61,13 @@ Material:
     - _GradientYStart3: 0.22
     - _GradientYStart4: -0.82
     - _LightningCycleDuration: 1
-    - _LightningFadeDuration: 1
+    - _LightningFadeDuration: 2
     - _LightningFadePercent: 0.16
-    - _LightningFillDuration: 0.5
-    - _LightningHoldDuration: 1
+    - _LightningFillDuration: 0.2
+    - _LightningHoldDuration: 2
     - _LightningHoldPercent: 0.14
     - _MoveSpeed: 12.39
+    - _RimPower: 0
     m_Colors:
     - _BaseColor: {r: 0.19999996, g: 0, b: 0.39999998, a: 1}
     - _BaseOverlayColor: {r: 0.2905661, g: 0.2905661, b: 0.2905661, a: 1}
@@ -79,6 +80,7 @@ Material:
     - _GradientColor4: {r: 0.82600236, g: 0.57169807, b: 1, a: 1}
     - _LightningColor: {r: 0, g: 23.59215, b: 47.937252, a: 1}
     - _MainColor: {r: 1, g: 1, b: 1, a: 1}
+    - _RimColor: {r: 0, g: 0, b: 0, a: 1}
     - _UVMax: {r: 1, g: 1, b: 0, a: 0}
     - _UVMin: {r: -1, g: -1, b: 0, a: 0}
   m_BuildTextureStacks: []

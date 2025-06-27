@@ -40,9 +40,11 @@ Material:
     - _LavaSpeed: 0.3
     - _NoiseScale: 3
     - _PatternScale: 6.42
+    - _RimPower: 24.61
     m_Colors:
     - _FlowDirection: {r: 1, g: 0, b: 0, a: 0}
     - _FogColor: {r: 1, g: 0, b: 0.035755157, a: 1}
     - _MainColor: {r: 0.8, g: 0.0980392, b: 0.22074088, a: 1}
+    - _RimColor: {r: 1024, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
