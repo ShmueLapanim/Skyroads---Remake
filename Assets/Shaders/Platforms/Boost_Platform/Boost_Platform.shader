@@ -24,6 +24,12 @@
 
         [HDR]_RimColor ("Rim Light Color", Color) = (1, 1, 1, 1)
         _RimPower ("Rim Light Power", Float) = 3.0
+
+        _ViewAngleGradientColor ("View Angle Gradient Color", Color) = (0.1, 0.1, 0.1, 1)
+        _ViewAngleGradientStrength ("View Angle Gradient Strength", Range(0,1)) = 0.5
+
+        _NoiseStrength ("Noise Strength", Range(0, 1)) = 0.3
+        _ShadowStrength ("Edge Shadow Strength", Range(0,1)) = 0.3
     }
 
     SubShader
@@ -79,6 +85,12 @@
             float4 _RimColor;
             float _RimPower;
 
+            float4 _ViewAngleGradientColor;
+            float _ViewAngleGradientStrength;
+
+            float _NoiseStrength;
+            float _ShadowStrength;
+
             Varyings vert(Attributes v)
             {
                 Varyings o;
@@ -94,6 +106,11 @@
                 float heightNorm = saturate((i.objectPos.y - _GradientMinY) / max(0.0001, (_GradientMaxY - _GradientMinY)));
                 float4 color = lerp(_BottomGradientColor, _TopGradientColor, heightNorm);
 
+                // Noise Layer on top of Gradient
+                float2 noiseUV = i.objectPos.xz * 0.5 + 0.5;
+                float noise = frac(sin(dot(noiseUV, float2(12.9898, 78.233))) * 43758.5453);
+                color.rgb *= lerp(1.0 - _NoiseStrength, 1.0 + _NoiseStrength, noise);
+
                 if (normal.y > 0.9)
                 {
                     float2 uv = i.objectPos.xz * 0.5 + 0.5;
@@ -102,9 +119,11 @@
                         lerp(_ArrowPaddingY, 1 - _ArrowPaddingY, uv.y)
                     );
 
-                    float edgeFalloff = smoothstep(0.5, 0.0, abs(paddedUV.x - 0.5) + abs(paddedUV.y - 0.5));
-                    color.rgb *= lerp(1.0, 0.75, edgeFalloff);
+                    // Gradient Shadow from edges
+                    float edgeFalloff = smoothstep(0.4, 0.0, abs(paddedUV.x - 0.5) + abs(paddedUV.y - 0.5));
+                    color.rgb *= lerp(1.0, 1.0 - _ShadowStrength, edgeFalloff);
 
+                    // Stars
                     float starSum = 0;
                     for (int j = 0; j < 100; j++)
                     {
@@ -119,6 +138,7 @@
                     }
                     color.rgb += _StarColor.rgb * starSum;
 
+                    // Arrows
                     for (int idx = 0; idx < 3; idx++)
                     {
                         float fy = (float)idx / 2.0;
@@ -131,11 +151,16 @@
                     }
                 }
 
-                // Rim Light (Fake Lighting)
                 float3 viewDir = normalize(_WorldSpaceCameraPos - TransformObjectToWorld(i.objectPos));
+
+                // Rim Light
                 float rim = 1.0 - saturate(dot(normal, viewDir));
                 rim = pow(rim, _RimPower);
                 color.rgb += rim * _RimColor.rgb * _RimColor.a;
+
+                // View Angle Gradient
+                float viewGradient = 1.0 - saturate(dot(normal, viewDir));
+                color.rgb = lerp(color.rgb, _ViewAngleGradientColor.rgb, viewGradient * _ViewAngleGradientStrength);
 
                 return color;
             }

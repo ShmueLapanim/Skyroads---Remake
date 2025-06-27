@@ -38,6 +38,11 @@
 
         [HDR]_RimColor ("Rim Light Color", Color) = (1, 1, 1, 1)
         _RimPower ("Rim Light Power", Float) = 3.0
+
+        _ViewAngleGradientColor("View Gradient Color", Color) = (1, 1, 1, 1)
+        _ViewAngleGradientStrength("View Gradient Strength", Float) = 2.0
+        _NoiseStrength("Noise Strength", Float) = 0.05
+        _ShadowStrength("Edge Shadow Strength", Float) = 0.3
     }
 
     SubShader
@@ -79,21 +84,18 @@
             float _CircleSpeed;
             float _CircleLifetime;
 
-            TEXTURE2D(_LightningTex);
-            SAMPLER(sampler_LightningTex);
+            TEXTURE2D(_LightningTex); SAMPLER(sampler_LightningTex);
             float4 _LightningColor;
             float _LightningFillDuration;
             float _LightningHoldDuration;
             float _LightningFadeDuration;
 
-            TEXTURE2D(_DistortedTex);
-            SAMPLER(sampler_DistortedTex);
+            TEXTURE2D(_DistortedTex); SAMPLER(sampler_DistortedTex);
             float4 _DistortTexColor;
             float _DistortSpeed;
             float _DistortIntensity;
 
-            TEXTURE2D(_BaseOverlayTex);
-            SAMPLER(sampler_BaseOverlayTex);
+            TEXTURE2D(_BaseOverlayTex); SAMPLER(sampler_BaseOverlayTex);
             float4 _BaseOverlayColor;
             float4 _BaseOverlayGlowColor;
             float _BaseOverlayFillDuration;
@@ -102,6 +104,11 @@
 
             float4 _RimColor;
             float _RimPower;
+
+            float4 _ViewAngleGradientColor;
+            float _ViewAngleGradientStrength;
+            float _NoiseStrength;
+            float _ShadowStrength;
 
             Varyings vert(Attributes v)
             {
@@ -133,6 +140,7 @@
             float4 frag(Varyings i) : SV_Target
             {
                 float3 normal = normalize(i.worldNormal);
+                float3 viewDir = normalize(_WorldSpaceCameraPos - i.worldPos);
                 float4 baseColor = ApplyGradient(i.worldPos);
 
                 if (normal.y > 0.9)
@@ -227,13 +235,26 @@
                     float2 distortUV = uv + sin(float2(uv.y, uv.x) * 20 + _Time.y * _DistortSpeed) * _DistortIntensity;
                     float4 distortTex = SAMPLE_TEXTURE2D(_DistortedTex, sampler_DistortedTex, distortUV);
                     baseColor.rgb += distortTex.rgb * _DistortTexColor.rgb * distortTex.a;
+
+                    // --- Add subtle edge shadow (vignette-like) ---
+                    float edgeFalloff = smoothstep(0.4, 0.0, abs(uv.x - 0.5) + abs(uv.y - 0.5));
+                    baseColor.rgb *= lerp(1.0, 1.0 - _ShadowStrength, edgeFalloff);
+
+                    // --- Add subtle noise to break uniformity ---
+                    float2 noiseUV = i.objectPos.xz * 0.5 + 0.5;
+                    float noise = frac(sin(dot(noiseUV, float2(12.9898, 78.233))) * 43758.5453);
+                    baseColor.rgb *= lerp(1.0, 1.0 + _NoiseStrength, noise);
                 }
 
-                // 👉 Rim Light (applies to all faces)
-                float3 viewDir = normalize(_WorldSpaceCameraPos - i.worldPos);
+                // Rim Light
                 float rim = 1.0 - saturate(dot(normal, viewDir));
                 rim = pow(rim, _RimPower);
                 baseColor.rgb += rim * _RimColor.rgb * _RimColor.a;
+
+                // View Angle Gradient
+                float viewDot = dot(normal, viewDir);
+                float viewFactor = pow(1.0 - saturate(viewDot), _ViewAngleGradientStrength);
+                baseColor.rgb *= lerp(1.0, _ViewAngleGradientColor.rgb, viewFactor);
 
                 return baseColor;
             }

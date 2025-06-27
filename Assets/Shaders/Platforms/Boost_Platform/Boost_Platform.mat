@@ -45,12 +45,15 @@ Material:
     - _GradientMaxY: 0.16
     - _GradientMinY: -2.16
     - _GradientStartY: -2.12
+    - _NoiseStrength: 0
     - _OutlineThickness: 0.03
     - _OutlineWidth: 0.02
     - _RimPower: 15
+    - _ShadowStrength: 1
     - _StarDensity: 100
     - _StarSize: 0.13
     - _StarTwinkleSpeed: 35.6
+    - _ViewAngleGradientStrength: 0.5
     m_Colors:
     - _ArrowColor: {r: 0.0108285425, g: 0.3735848, b: 0, a: 1}
     - _ArrowGlowColor: {r: 18.844341, g: 59.401436, b: 0, a: 1}
@@ -64,5 +67,6 @@ Material:
     - _StarColor: {r: 0.6597538, g: 0.6597538, b: 0.6597538, a: 1}
     - _TopColor: {r: 0.19999996, g: 1, b: 0.19999996, a: 1}
     - _TopGradientColor: {r: 0, g: 0.2905661, b: 0, a: 1}
+    - _ViewAngleGradientColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

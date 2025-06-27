@@ -37,14 +37,22 @@ Material:
     - _FogHeight: 1.5
     - _FogSpeed: 0.19
     - _FogStrength: 0.4
+    - _GradientMaxY: 0.11
+    - _GradientMinY: 0
     - _LavaSpeed: 0.3
     - _NoiseScale: 3
+    - _NoiseStrength: 1
     - _PatternScale: 6.42
     - _RimPower: 24.61
+    - _ShadowStrength: 1
+    - _ViewAngleGradientStrength: 1
     m_Colors:
+    - _BottomGradientColor: {r: 0.3132075, g: 0, b: 0, a: 1}
     - _FlowDirection: {r: 1, g: 0, b: 0, a: 0}
     - _FogColor: {r: 1, g: 0, b: 0.035755157, a: 1}
     - _MainColor: {r: 0.8, g: 0.0980392, b: 0.22074088, a: 1}
     - _RimColor: {r: 1024, g: 0, b: 0, a: 1}
+    - _TopGradientColor: {r: 1, g: 0.5, b: 0.5, a: 1}
+    - _ViewAngleGradientColor: {r: 0.09999997, g: 0.09999997, b: 0.09999997, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
