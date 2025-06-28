@@ -45,7 +45,7 @@ Material:
     - _GradientMaxY: 0.16
     - _GradientMinY: -2.16
     - _GradientStartY: -2.12
-    - _NoiseStrength: 0
+    - _NoiseStrength: 0.5
     - _OutlineThickness: 0.03
     - _OutlineWidth: 0.02
     - _RimPower: 15
