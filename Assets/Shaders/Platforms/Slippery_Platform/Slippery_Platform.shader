@@ -1,4 +1,4 @@
-Shader "URP/SlipperyPlatform_CartoonIce"
+﻿Shader "URP/SlipperyPlatform_CartoonIce"
 {
     Properties
     {
@@ -28,6 +28,12 @@ Shader "URP/SlipperyPlatform_CartoonIce"
         _ViewAngleGradientStrength ("View Angle Gradient Strength", Float) = 0.3
         _NoiseStrength ("Noise Strength", Float) = 0.1
         _ShadowStrength ("Edge Shadow Strength", Float) = 0.3
+
+        // 🔁 NEW Reflection Properties
+        _ReflectionTex ("Reflection Cubemap", CUBE) = "" {}
+        _ReflectionStrength ("Reflection Strength", Range(0, 1)) = 0.5
+        _ReflectionTint ("Reflection Tint", Color) = (1, 1, 1, 1)
+        _ReflectionSmoothness ("Reflection Sharpness", Range(0.1, 1)) = 0.7
     }
 
     SubShader
@@ -81,6 +87,13 @@ Shader "URP/SlipperyPlatform_CartoonIce"
             float _NoiseStrength;
             float _ShadowStrength;
 
+            // 🔁 NEW Reflection Uniforms
+            TEXTURECUBE(_ReflectionTex);
+            SAMPLER(sampler_ReflectionTex);
+            float _ReflectionStrength;
+            float4 _ReflectionTint;
+            float _ReflectionSmoothness;
+
             Varyings vert(Attributes v)
             {
                 Varyings o;
@@ -133,6 +146,14 @@ Shader "URP/SlipperyPlatform_CartoonIce"
                 finalColor += overlayColor.rgb * overlayColor.a;
                 finalColor += rim * _RimColor.rgb * _RimColor.a;
                 finalColor += viewGradient;
+
+                // 🔁 ADD Reflection from Cubemap
+                float3 reflectDir = reflect(-viewDir, N);
+                float3 reflectionSample = SAMPLE_TEXTURECUBE(_ReflectionTex, sampler_ReflectionTex, reflectDir);
+                reflectionSample *= _ReflectionTint.rgb;
+
+                reflectionSample = lerp(finalColor, reflectionSample, _ReflectionSmoothness);
+                finalColor = lerp(finalColor, reflectionSample, _ReflectionStrength);
 
                 return float4(finalColor, 1);
             }

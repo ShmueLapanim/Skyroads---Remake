@@ -43,14 +43,22 @@
         _ViewAngleGradientStrength("View Gradient Strength", Float) = 2.0
         _NoiseStrength("Noise Strength", Float) = 0.05
         _ShadowStrength("Edge Shadow Strength", Float) = 0.3
+
+        // === Toy Style Additions START ===
+        [HDR]_ToySpecularColor("Toy Specular Color", Color) = (1, 1, 1, 1)
+        _ToySpecularPower("Toy Specular Sharpness", Float) = 128.0
+        _ToySpecularIntensity("Toy Specular Intensity", Float) = 1.0
+        _ToyOutlineWidth("Toy Outline Width", Float) = 0.5
+        _ToyRimPower("Toy Rim Power", Float) = 2.0
+        [HDR]_ToyRimColor("Toy Rim Color", Color) = (1, 1, 1, 1)
+        // === Toy Style Additions END ===
     }
 
     SubShader
     {
         Tags { "RenderType"="Opaque" }
         LOD 200
-
-        Pass
+                Pass
         {
             Name "ForwardLit"
             Tags { "LightMode"="UniversalForward" }
@@ -110,15 +118,15 @@
             float _NoiseStrength;
             float _ShadowStrength;
 
-            Varyings vert(Attributes v)
-            {
-                Varyings o;
-                o.objectPos = v.positionOS.xyz;
-                o.worldPos = TransformObjectToWorld(v.positionOS.xyz);
-                o.worldNormal = TransformObjectToWorldNormal(v.normalOS);
-                o.positionHCS = TransformWorldToHClip(o.worldPos);
-                return o;
-            }
+
+            // === Toy Style Additions START ===
+            float4 _ToySpecularColor;
+            float _ToySpecularPower;
+            float _ToySpecularIntensity;
+            float _ToyOutlineWidth;
+            float _ToyRimPower;
+            float4 _ToyRimColor;
+            // === Toy Style Additions END ===
 
             float4 ApplyGradient(float3 worldPos)
             {
@@ -137,7 +145,16 @@
                 return color;
             }
 
-            float4 frag(Varyings i) : SV_Target
+            Varyings vert(Attributes v)
+            {
+                Varyings o;
+                o.objectPos = v.positionOS.xyz;
+                o.worldPos = TransformObjectToWorld(v.positionOS.xyz);
+                o.worldNormal = TransformObjectToWorldNormal(v.normalOS);
+                o.positionHCS = TransformWorldToHClip(o.worldPos);
+                return o;
+            }
+                        float4 frag(Varyings i) : SV_Target
             {
                 float3 normal = normalize(i.worldNormal);
                 float3 viewDir = normalize(_WorldSpaceCameraPos - i.worldPos);
@@ -236,17 +253,14 @@
                     float4 distortTex = SAMPLE_TEXTURE2D(_DistortedTex, sampler_DistortedTex, distortUV);
                     baseColor.rgb += distortTex.rgb * _DistortTexColor.rgb * distortTex.a;
 
-                    // --- Add subtle edge shadow (vignette-like) ---
                     float edgeFalloff = smoothstep(0.4, 0.0, abs(uv.x - 0.5) + abs(uv.y - 0.5));
                     baseColor.rgb *= lerp(1.0, 1.0 - _ShadowStrength, edgeFalloff);
 
-                    // --- Add subtle noise to break uniformity ---
                     float2 noiseUV = i.objectPos.xz * 0.5 + 0.5;
                     float noise = frac(sin(dot(noiseUV, float2(12.9898, 78.233))) * 43758.5453);
                     baseColor.rgb *= lerp(1.0, 1.0 + _NoiseStrength, noise);
                 }
-
-                // Rim Light
+                                // Rim Light
                 float rim = 1.0 - saturate(dot(normal, viewDir));
                 rim = pow(rim, _RimPower);
                 baseColor.rgb += rim * _RimColor.rgb * _RimColor.a;
@@ -256,9 +270,23 @@
                 float viewFactor = pow(1.0 - saturate(viewDot), _ViewAngleGradientStrength);
                 baseColor.rgb *= lerp(1.0, _ViewAngleGradientColor.rgb, viewFactor);
 
+                // === Toy Style Additions START ===
+                float3 lightDir = normalize(_MainLightPosition.xyz);
+                float3 halfDir = normalize(lightDir + viewDir);
+                float toySpec = pow(saturate(dot(normal, halfDir)), _ToySpecularPower);
+                baseColor.rgb += toySpec * _ToySpecularColor.rgb * _ToySpecularIntensity;
+
+                float outlineMask = pow(1.0 - saturate(dot(normal, viewDir)), 2.0);
+                baseColor.rgb = lerp(baseColor.rgb, float3(0,0,0), outlineMask * _ToyOutlineWidth);
+
+                float toyRim = pow(1.0 - saturate(dot(normal, viewDir)), _ToyRimPower);
+                baseColor.rgb += toyRim * _ToyRimColor.rgb * _ToyRimColor.a;
+                // === Toy Style Additions END ===
+
                 return baseColor;
             }
             ENDHLSL
         }
     }
 }
+

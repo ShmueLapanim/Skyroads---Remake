@@ -39,6 +39,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: ee96423770dd3d34a9d5bc30406d4734, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _ReflectionTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _BaseOverlayFadeDuration: 2
@@ -52,6 +56,7 @@ Material:
     - _CircleSpeed: 0.0009
     - _DistortIntensity: 0.05
     - _DistortSpeed: 1
+    - _GlowStrength: 0.2
     - _GradientYEnd1: 0.3
     - _GradientYEnd2: 0.1
     - _GradientYEnd3: -0.1
@@ -68,8 +73,17 @@ Material:
     - _LightningHoldPercent: 0.14
     - _MoveSpeed: 12.39
     - _NoiseStrength: 0
+    - _OutlineStrength: 0.3
+    - _ReflectionSharpness: 0.6
+    - _ReflectionStrength: 0.4
     - _RimPower: 0
     - _ShadowStrength: 0
+    - _SpecularIntensity: 0.5
+    - _SpecularPower: 64
+    - _ToyOutlineWidth: 0
+    - _ToyRimPower: 30
+    - _ToySpecularIntensity: 0
+    - _ToySpecularPower: 128
     - _ViewAngleGradientStrength: 10
     m_Colors:
     - _BaseColor: {r: 0.19999996, g: 0, b: 0.39999998, a: 1}
@@ -77,13 +91,19 @@ Material:
     - _BaseOverlayGlowColor: {r: 0.59636486, g: 0, b: 3.4822023, a: 1}
     - _CircleColor: {r: 0, g: 0.87521863, b: 1, a: 1}
     - _DistortTexColor: {r: 0, g: 0.446647, b: 0.6754716, a: 1}
+    - _GlowColor: {r: 1, g: 1, b: 1, a: 1}
     - _GradientColor1: {r: 0.29803923, g: 0, b: 0.5019608, a: 1}
     - _GradientColor2: {r: 0.7646816, g: 0.42075467, b: 1, a: 1}
     - _GradientColor3: {r: 0.26214626, g: 0, b: 0.4415095, a: 1}
     - _GradientColor4: {r: 0.82600236, g: 0.57169807, b: 1, a: 1}
     - _LightningColor: {r: 0, g: 23.59215, b: 47.937252, a: 1}
     - _MainColor: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _ReflectionTint: {r: 1, g: 1, b: 1, a: 1}
     - _RimColor: {r: 0, g: 0, b: 0, a: 1}
+    - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
+    - _ToyRimColor: {r: 1, g: 1, b: 1, a: 1}
+    - _ToySpecularColor: {r: 0.21291685, g: 0, b: 1, a: 1}
     - _UVMax: {r: 1, g: 1, b: 0, a: 0}
     - _UVMin: {r: -1, g: -1, b: 0, a: 0}
     - _ViewAngleGradientColor: {r: 0.09999997, g: 0.09999997, b: 0.09999997, a: 1}
