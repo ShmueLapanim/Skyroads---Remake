@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Boost
+  m_Shader: {fileID: 4800000, guid: 7ad0fa5ebaf4587419b5d3d76bf291e4, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: _ArrowSoftX
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _ArrowTex:
+        m_Texture: {fileID: 2800000, guid: 6ef2a2cabe4a6bb4b96820874a7bcef0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _StarTex:
+        m_Texture: {fileID: 2800000, guid: c55304b1bca1d594bb56bc8aefc6b4bc, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _StarsTex:
+        m_Texture: {fileID: 10900, guid: 0000000000000000f000000000000000, type: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ArrowArea: 0
+    - _ArrowCount: 1
+    - _ArrowGlow: 1.38
+    - _ArrowScrollSpeed: 0
+    - _ArrowSoftX: 0.09
+    - _ArrowSoftY: 0.52
+    - _ArrowSpacingX: 1
+    - _ArrowSpacingY: 0.33
+    - _EmissionPower: 50.3
+    - _ScrollSpeed: -0.2
+    - _StarCount: 2000
+    - _StarGlow: 2
+    - _StarLife: 1.69
+    - _StarLifeMax: 2
+    - _StarLifeMin: 1
+    - _StarRotMax: 180
+    - _StarRotMin: 120
+    - _StarSize: 0.61
+    - _StarSizeMax: 0.15
+    - _StarSizeMin: 0.01
+    - _StarsGlow: 41.55
+    - _StarsSpeed: 0.3
+    - _StarsTiling: 5
+    m_Colors:
+    - _ArrowColor: {r: 0.39514178, g: 1, b: 0.3754716, a: 1}
+    - _BaseColor: {r: 0.18012574, g: 0.6754716, b: 0, a: 1}
+    - _Direction: {r: 0, g: 1, b: 0, a: 0}
+    - _StarColor: {r: 1, g: 1, b: 1, a: 1}
+    - _StarsColor: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
