@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7df8e24af6d8d55448dd0d63ec860024, type: 3}
   m_Name: ControllerSettings_Tomer
   m_EditorClassIdentifier: 
-  horizontalSpeed: 10
+  horizontalSpeed: 12
   horizontalAcceleration: 30
   horizontalChangeAcceleration: 50
   horizontalDeceleration: 30
   horizontalAccelerationChangeSpeed: 50
   terminalHorizontalSpeedTH: 0.6
-  forwardSpeed: 12
+  forwardSpeed: 15
   forwardAcceleration: 12
   forwardDeceleration: 20
   groundLayer:
@@ -30,15 +30,17 @@ MonoBehaviour:
   jumpHeight: 6
   jumpBufferTime: 0.1
   fallGravity: 6
-  apexGravity: 1.5
+  apexGravity: 2
   apexThreshold: 1.5
   gravityChangeSpeed: 5
-  jumpCutMultiplier: 0.65
+  jumpCutMultiplier: 0.25
+  jumpCutAcceleration: 65
   centerOffset: {x: 0, y: 0, z: 0}
   halfExtents: {x: 0.35, y: 0.2, z: 0.8}
   groundHeight: 1
   groundSpringStrength: 6.5
-  groundSpringDamping: 0.5
+  groundSpringDamping: 0.35
+  groundSpringExtraHeight: 0.25
   rotationSpeed: 6
   turningAngle: 30
   airRotationBlend: 0.2

@@ -100,7 +100,7 @@ public class PlayerController : MonoBehaviour
 
     #endregion
     
-    #region Jumping and Gravity
+    #region Jumping
     
     void HandleJumpInput()
     {
@@ -182,13 +182,28 @@ public class PlayerController : MonoBehaviour
     {
         if (!_isFalling && _isJumping && jumpReleased && velocityY > RuntimeSettings.apexThreshold)
         {
-            Vector3 jumpVel = _rb.linearVelocity;
-            jumpVel.y *= RuntimeSettings.jumpCutMultiplier;
-            _rb.linearVelocity = jumpVel;
+            StartCoroutine(JumpCutCoroutine());
             _isFalling = true;
-            print("cuttt");
         }
     }
+
+    IEnumerator JumpCutCoroutine()
+    {
+        Vector3 targetJumpVel;
+        targetJumpVel.y = RuntimeSettings.jumpCutMultiplier * _rb.linearVelocity.y;
+        
+        while (_rb.linearVelocity.y > targetJumpVel.y)
+        {
+            Vector3 jumpVel = _rb.linearVelocity;
+            jumpVel.y = Mathf.MoveTowards(_rb.linearVelocity.y, targetJumpVel.y, RuntimeSettings.jumpCutAcceleration * Time.fixedDeltaTime);
+            _rb.linearVelocity = jumpVel;
+            yield return new WaitForFixedUpdate();
+        }
+    }
+    
+    #endregion
+
+    #region Gravity
     
     void ApplyGravity()
     {
@@ -217,8 +232,6 @@ public class PlayerController : MonoBehaviour
                             , 0.1f, gravity) : 
                             _currentGravity;
     }
-
-    
     
     #endregion
     
@@ -226,20 +239,20 @@ public class PlayerController : MonoBehaviour
 
     private void CheckGroundStatus()
     {
-        if (!_alignToGround && IsGrounded() && _rb.linearVelocity.y <= 0.1f)
+        _isGrounded = IsGrounded(RuntimeSettings.groundSpringExtraHeight);  // testing purposes
+        if (!_alignToGround && _isGrounded && _rb.linearVelocity.y <= 0.1f)
         {
             _alignToGround = true;
             _isJumping = false;
             _isFalling = false;
         }
-        _isGrounded = IsGrounded(); // testing purposes
     }
     
     void GroundAlignment2()
     {
         if(!_alignToGround) return;
 
-        bool isGrounded = IsGrounded(out RaycastHit hit);
+        bool isGrounded = IsGrounded(out RaycastHit hit,RuntimeSettings.groundSpringExtraHeight);
 
         //if we are too close to the ground we want a stronger spring so we wont collide
         float distanceToGround = _collider.bounds.min.y - hit.point.y;
@@ -334,10 +347,11 @@ public class PlayerController : MonoBehaviour
         // Calculate the center of the box at the end of the cast
         Vector3 start = transform.position + DefaultSettings.centerOffset;
         Vector3 end = start + castDirection * castDistance;
+        Vector3 springEnd = start + castDirection * (castDistance + DefaultSettings.groundSpringExtraHeight);
         Quaternion orientation = Quaternion.identity;
 
         // Draw the starting box (optional)
-        Gizmos.color = Color.green;
+        Gizmos.color = Color.red;
         Gizmos.matrix = Matrix4x4.TRS(start, orientation, Vector3.one);
         Gizmos.DrawWireCube(Vector3.zero, boxHalfExtents * 2f);
 
@@ -348,7 +362,7 @@ public class PlayerController : MonoBehaviour
         
         // Draw the spring box
         Gizmos.color = Color.cyan;
-        Gizmos.matrix = Matrix4x4.TRS(end, orientation, Vector3.one);
+        Gizmos.matrix = Matrix4x4.TRS(springEnd, orientation, Vector3.one);
         Gizmos.DrawWireCube(Vector3.zero, boxHalfExtents * 2f);
 
         // Draw the line between start and end

@@ -9,18 +9,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 7054364154398961396, guid: 48646f0abd6d0834781d4a0e9aca4ff5, type: 3}
-      propertyPath: defaultSettings
-      value: 
-      objectReference: {fileID: 11400000, guid: 8aa21098c635534429aec1b9041f83e0, type: 2}
-    - target: {fileID: 7054364154398961396, guid: 48646f0abd6d0834781d4a0e9aca4ff5, type: 3}
-      propertyPath: _defaultSettings
-      value: 
-      objectReference: {fileID: 11400000, guid: 8aa21098c635534429aec1b9041f83e0, type: 2}
-    - target: {fileID: 7054364154398961396, guid: 48646f0abd6d0834781d4a0e9aca4ff5, type: 3}
-      propertyPath: controllerSettings
-      value: 
-      objectReference: {fileID: 11400000, guid: 8aa21098c635534429aec1b9041f83e0, type: 2}
-    - target: {fileID: 7054364154398961396, guid: 48646f0abd6d0834781d4a0e9aca4ff5, type: 3}
       propertyPath: <DefaultSettings>k__BackingField
       value: 
       objectReference: {fileID: 11400000, guid: 8aa21098c635534429aec1b9041f83e0, type: 2}
@@ -30,7 +18,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9186654950110160553, guid: 48646f0abd6d0834781d4a0e9aca4ff5, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.247921
+      value: 1.502079
       objectReference: {fileID: 0}
     - target: {fileID: 9186654950110160553, guid: 48646f0abd6d0834781d4a0e9aca4ff5, type: 3}
       propertyPath: m_LocalPosition.y
