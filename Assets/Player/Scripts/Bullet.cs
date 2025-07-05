@@ -33,7 +33,7 @@ public class Bullet : MonoBehaviour
         if (other.gameObject.layer == gameObject.layer) return;
 
         if (((1 << other.gameObject.layer) & LayerMask.GetMask("Barrier")) != 0 &&
-            other.TryGetComponent(out IBulletInteractable bulletInteractable))
+            other.transform.parent.parent.TryGetComponent(out IBulletInteractable bulletInteractable))
         {
             bulletInteractable.OnBulletHit(this);
             Die();
