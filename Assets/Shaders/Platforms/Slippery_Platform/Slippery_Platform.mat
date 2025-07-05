@@ -23,12 +23,36 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _AOMap:
+        m_Texture: {fileID: 2800000, guid: 000a9ad7f254c634cb890f66baffd5b6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _AOMap2:
+        m_Texture: {fileID: 2800000, guid: 1c0969e87bc3a2f43b65cf0be07d0076, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DynamicReflectionTex:
+        m_Texture: {fileID: 8400000, guid: cfd081098c6fff3408b030ca6207da0b, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: acf838d458094e11b23ceafc2d9a02b0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NoiseTex:
         m_Texture: {fileID: 2800000, guid: acf838d458094e11b23ceafc2d9a02b0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap1:
+        m_Texture: {fileID: 2800000, guid: 10d73637c8d53ec4eb8a2effc3970df3, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap2:
+        m_Texture: {fileID: 2800000, guid: f18428e3e1953194aa7bdf993f0d2761, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OverlayTex:
@@ -45,14 +69,18 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _GlowFlashDuration: 0
-    - _GlowFlashSize: 1
+    - _AOMap2_Strength: 0.54
+    - _AOMap2_Tiling: 3
+    - _GlowFlashDuration: 3
+    - _GlowFlashSize: 0.12
     - _GlowInterval: 9
-    - _GradientMaxY: 1
-    - _GradientMinY: -71.45
+    - _GradientMaxY: 0.5
+    - _GradientMinY: 0
     - _NoiseStrength: 0
-    - _ReflectionSmoothness: 0.1
-    - _ReflectionStrength: 1
+    - _NormalMap2_Strength: 0
+    - _NormalMap2_Tiling: 1
+    - _ReflectionSmoothness: 1
+    - _ReflectionStrength: 0.47
     - _RimPower: 3
     - _ShadowStrength: -35.1
     - _SpecPower: 20
@@ -61,7 +89,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 0.5, g: 0.8, b: 1, a: 1}
     - _GlowColor: {r: 1, g: 1, b: 1, a: 1}
-    - _GlowFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    - _GlowFlashColor: {r: 0, g: 0.1776941, b: 0.256, a: 1}
     - _GradientBottom: {r: 0, g: 0.18603283, b: 0.2754717, a: 1}
     - _GradientBottomColor: {r: 0.5, g: 0.7, b: 0.9, a: 1}
     - _GradientTop: {r: 0.3238992, g: 1, b: 1, a: 1}
