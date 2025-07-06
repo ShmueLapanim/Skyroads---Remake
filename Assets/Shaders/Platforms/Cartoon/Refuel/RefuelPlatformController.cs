@@ -6,18 +6,10 @@ public class RefuelPlatformController : MonoBehaviour
     [SerializeField] private Material platformMaterial;
     [SerializeField] private bool isPlayerOn = false;
 
-    private float transitionTime = 1f;
-    private float currentFill = 0f;
-    private float targetFill = 0f;
-
-    private void Start()
-    {
-        if (platformMaterial != null && platformMaterial.HasProperty("_LightningTransitionTime"))
-        {
-            transitionTime = platformMaterial.GetFloat("_LightningTransitionTime");
-        }
-    }
-
+    public float transitionTime;
+    private float currentFill;
+    private float targetFill;
+    
     private void Update()
     {
         targetFill = isPlayerOn ? 1f : 0f;
