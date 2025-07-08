@@ -35,9 +35,9 @@ MonoBehaviour:
   gravityChangeSpeed: 5
   jumpCutMultiplier: 0.65
   centerOffset: {x: 0, y: 0, z: 0}
-  halfExtents: {x: 0.4, y: 0.2, z: 0.8}
-  groundHeight: 1.15
-  groundSpringStrength: 5
+  halfExtents: {x: 0.4, y: 0.11, z: 0.8}
+  groundHeight: 0.73
+  groundSpringStrength: 6.5
   groundSpringDamping: 0.335
   rotationSpeed: 5.7
   turningAngle: 46.4
