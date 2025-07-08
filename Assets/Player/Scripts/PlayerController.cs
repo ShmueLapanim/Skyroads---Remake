@@ -252,7 +252,7 @@ public class PlayerController : MonoBehaviour
     {
         if(!_alignToGround) return;
 
-        bool isGrounded = IsGrounded(out RaycastHit hit,RuntimeSettings.groundSpringExtraHeight);
+        bool isGrounded = IsGrounded(out RaycastHit hit,RuntimeSettings.groundSpringExtraHeight, true);
 
         //if we are too close to the ground we want a stronger spring so we wont collide
         float distanceToGround = _collider.bounds.min.y - hit.point.y;
@@ -267,7 +267,8 @@ public class PlayerController : MonoBehaviour
 
             // Apply spring force
             float springForce = displacement * RuntimeSettings.groundSpringStrength * _springForceModifier - _rb.linearVelocity.y * RuntimeSettings.groundSpringDamping;
-
+            Debug.Log(displacement);
+            
             Vector3 targetVelocity = _rb.linearVelocity;
             targetVelocity.y += springForce;
 
@@ -279,12 +280,26 @@ public class PlayerController : MonoBehaviour
         }
     }
     
-    private bool IsGrounded(out RaycastHit hit, float extraDistance = 0f)
+    private bool IsGrounded(out RaycastHit hit, float extraDistance = 0f, bool isSpring = false)
     {
+        if(!isSpring)
+            return Physics.BoxCast
+            (
+                transform.position + RuntimeSettings.centerOffset, 
+                RuntimeSettings.halfExtents, 
+                Vector3.down, 
+                out hit,Quaternion.identity,
+                RuntimeSettings.groundHeight + extraDistance, 
+                RuntimeSettings.groundLayer
+            ); 
+      
+        Vector3 center = transform.position + RuntimeSettings.centerOffset + new Vector3(0f, 0f, 0.6f * RuntimeSettings.halfExtents.z);
+        Vector3 halfExtents = new Vector3(RuntimeSettings.halfExtents.x, 0.05f, 0.6f * RuntimeSettings.halfExtents.z);
+        
         return Physics.BoxCast
         (
-            transform.position + RuntimeSettings.centerOffset, 
-            RuntimeSettings.halfExtents, 
+            center, 
+            halfExtents, 
             Vector3.down, 
             out hit,Quaternion.identity,
             RuntimeSettings.groundHeight + extraDistance, 
@@ -347,7 +362,7 @@ public class PlayerController : MonoBehaviour
         // Calculate the center of the box at the end of the cast
         Vector3 start = transform.position + DefaultSettings.centerOffset;
         Vector3 end = start + castDirection * castDistance;
-        Vector3 springEnd = start + castDirection * (castDistance + DefaultSettings.groundSpringExtraHeight);
+        Vector3 springEnd = start + castDirection * (castDistance + DefaultSettings.groundSpringExtraHeight) + new Vector3(0f, 0f, 0.6f * DefaultSettings.halfExtents.z);
         Quaternion orientation = Quaternion.identity;
 
         // Draw the starting box (optional)
@@ -363,7 +378,7 @@ public class PlayerController : MonoBehaviour
         // Draw the spring box
         Gizmos.color = Color.cyan;
         Gizmos.matrix = Matrix4x4.TRS(springEnd, orientation, Vector3.one);
-        Gizmos.DrawWireCube(Vector3.zero, boxHalfExtents * 2f);
+        Gizmos.DrawWireCube(Vector3.zero, new Vector3(boxHalfExtents.x, 0.05f, boxHalfExtents.z * 0.6f) * 2f);
 
         // Draw the line between start and end
         Gizmos.color = Color.yellow;
