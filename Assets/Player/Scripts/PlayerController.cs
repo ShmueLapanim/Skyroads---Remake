@@ -17,7 +17,6 @@ public class PlayerController : MonoBehaviour
     private Coroutine _jumpBufferCoroutine;
     
     private float _currentGravity;
-    private float _springForceModifier;
     private float _currentHorizontalAcceleration;
     
     private bool _wantsToJump;
@@ -253,10 +252,6 @@ public class PlayerController : MonoBehaviour
         if(!_alignToGround) return;
 
         bool isGrounded = IsGrounded(out RaycastHit hit,RuntimeSettings.groundSpringExtraHeight, true);
-
-        //if we are too close to the ground we want a stronger spring so we wont collide
-        float distanceToGround = _collider.bounds.min.y - hit.point.y;
-        _springForceModifier = distanceToGround <= 0.2f ? 10f / RuntimeSettings.groundSpringStrength : 1f;
         
         // spring logic when on the ground
         if (isGrounded)
@@ -265,14 +260,18 @@ public class PlayerController : MonoBehaviour
             float targetY = hit.point.y + RuntimeSettings.groundHeight;
             float displacement = targetY - currentY;
 
-            // Apply spring force
-            float springForce = displacement * RuntimeSettings.groundSpringStrength * _springForceModifier - _rb.linearVelocity.y * RuntimeSettings.groundSpringDamping;
-            Debug.Log(displacement);
+            if (Mathf.Abs(displacement) > 0.01f)
+            {
+                // Apply spring force
+                float springForce = (displacement * RuntimeSettings.groundSpringStrength) - (_rb.linearVelocity.y * RuntimeSettings.groundSpringDamping);
+                Debug.Log(displacement);
             
-            Vector3 targetVelocity = _rb.linearVelocity;
-            targetVelocity.y += springForce;
+                Vector3 targetVelocity = _rb.linearVelocity;
+                targetVelocity.y += springForce;
 
-            _rb.linearVelocity = targetVelocity;
+                _rb.linearVelocity = targetVelocity;
+            }
+            
         }
         else
         {
@@ -293,8 +292,8 @@ public class PlayerController : MonoBehaviour
                 RuntimeSettings.groundLayer
             ); 
       
-        Vector3 center = transform.position + RuntimeSettings.centerOffset + new Vector3(0f, 0f, 0.6f * RuntimeSettings.halfExtents.z);
-        Vector3 halfExtents = new Vector3(RuntimeSettings.halfExtents.x, 0.05f, 0.6f * RuntimeSettings.halfExtents.z);
+        Vector3 center = transform.position + RuntimeSettings.centerOffset + new Vector3(0f, 0f, RuntimeSettings.halfExtents.z);
+        Vector3 halfExtents = new Vector3(RuntimeSettings.halfExtents.x, 0.05f, 0.1f);
         
         return Physics.BoxCast
         (
@@ -362,7 +361,7 @@ public class PlayerController : MonoBehaviour
         // Calculate the center of the box at the end of the cast
         Vector3 start = transform.position + DefaultSettings.centerOffset;
         Vector3 end = start + castDirection * castDistance;
-        Vector3 springEnd = start + castDirection * (castDistance + DefaultSettings.groundSpringExtraHeight) + new Vector3(0f, 0f, 0.6f * DefaultSettings.halfExtents.z);
+        Vector3 springEnd = start + castDirection * (castDistance + DefaultSettings.groundSpringExtraHeight) + new Vector3(0f, 0f, DefaultSettings.halfExtents.z);
         Quaternion orientation = Quaternion.identity;
 
         // Draw the starting box (optional)
@@ -378,7 +377,7 @@ public class PlayerController : MonoBehaviour
         // Draw the spring box
         Gizmos.color = Color.cyan;
         Gizmos.matrix = Matrix4x4.TRS(springEnd, orientation, Vector3.one);
-        Gizmos.DrawWireCube(Vector3.zero, new Vector3(boxHalfExtents.x, 0.05f, boxHalfExtents.z * 0.6f) * 2f);
+        Gizmos.DrawWireCube(Vector3.zero, new Vector3(boxHalfExtents.x, 0.05f, 0.1f) * 2f);
 
         // Draw the line between start and end
         Gizmos.color = Color.yellow;

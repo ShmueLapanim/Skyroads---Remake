@@ -38,7 +38,7 @@ MonoBehaviour:
   centerOffset: {x: 0, y: 0, z: 0}
   halfExtents: {x: 0.35, y: 0.2, z: 0.8}
   groundHeight: 1
-  groundSpringStrength: 6
+  groundSpringStrength: 8
   groundSpringDamping: 0.45
   groundSpringExtraHeight: 0.25
   rotationSpeed: 6
