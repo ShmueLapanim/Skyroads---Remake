@@ -64,7 +64,7 @@ public class PlatformDetection : MonoBehaviour
         Vector3 halfExtents = _controller.RuntimeSettings.halfExtents;
         float distance = _controller.RuntimeSettings.groundHeight + extraDistance;
 
-        bool detected = Physics.BoxCast(origin, halfExtents, Vector3.down, out hit, Quaternion.identity, distance, platformLayer);
+        bool detected = Physics.BoxCast(origin, halfExtents, Vector3.down, out hit, Quaternion.identity, distance, platformLayer, QueryTriggerInteraction.Collide);
 
         return detected && (_currentPlatform == null || _currentPlatform != hit.collider.gameObject);
     }
@@ -74,9 +74,13 @@ public class PlatformDetection : MonoBehaviour
         Vector3 origin = transform.position + _controller.RuntimeSettings.centerOffset;
         Vector3 halfExtents = _controller.RuntimeSettings.halfExtents;
         float distance = _controller.RuntimeSettings.groundHeight + extraDistance;
-
-        return Physics.BoxCast(origin, halfExtents, Vector3.down, out RaycastHit hit, Quaternion.identity, distance, platformLayer) &&
-               hit.collider.gameObject == _currentPlatform;
+        
+        bool boxCastHit = Physics.BoxCast(origin, halfExtents, Vector3.down, out RaycastHit hit, Quaternion.identity, distance, platformLayer, QueryTriggerInteraction.Collide);
+        if (boxCastHit)
+            return hit.collider.gameObject == _currentPlatform;
+        
+        bool overlapHit = Physics.OverlapBox(origin, halfExtents, Quaternion.identity, platformLayer, QueryTriggerInteraction.Collide).Length > 0;
+        return overlapHit;
     }
     
     private void TryRemoveEffect(GameObject platform)
