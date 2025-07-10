@@ -80,10 +80,11 @@ public class PlayerController : MonoBehaviour
         _currentHorizontalAcceleration = isReachingMaxSpeed ? maxSpeedAcceleration : isChangingDirection || targetVelX == 0f ? targetAcceleration :
             Mathf.MoveTowards(_currentHorizontalAcceleration, targetAcceleration, RuntimeSettings.horizontalAccelerationChangeSpeed * Time.fixedDeltaTime);
         
-        Vector3 targetVelocity = _rb.linearVelocity;
-        targetVelocity.x = Mathf.MoveTowards(targetVelocity.x, targetVelX, _currentHorizontalAcceleration * Time.fixedDeltaTime);
+        Vector3 velocity = _rb.linearVelocity;
+        velocity.x = Mathf.MoveTowards(velocity.x, targetVelX, _currentHorizontalAcceleration * Time.fixedDeltaTime);
         
-        _rb.linearVelocity = targetVelocity;
+        _rb.linearVelocity = velocity;
+        
     }
     
     void ApplyForwardMovement()

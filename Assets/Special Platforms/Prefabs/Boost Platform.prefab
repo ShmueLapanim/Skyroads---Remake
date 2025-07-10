@@ -123,8 +123,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialImpulseModifier: 1.5
-  springModifier: 0
-  jumpModifier: 0
+  boostStackCount: 2
+  springModifier: 1
+  jumpModifier: 1
   boostSpeed: 25
   boostAcceleration: 50
   boostDuration: 0.7
