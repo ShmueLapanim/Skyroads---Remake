@@ -13950,7 +13950,7 @@ MonoBehaviour:
   NoiseProfile: {fileID: 11400000, guid: 46965f9cbaf525742a6da4c2172a99cd, type: 2}
   PivotOffset: {x: 0, y: 0, z: 0}
   AmplitudeGain: 1
-  FrequencyGain: 0.3
+  FrequencyGain: 0.5
   m_NoiseOffsets: {x: 0, y: 0, z: 0}
 --- !u!1 &548272133
 GameObject:
@@ -25468,7 +25468,7 @@ Transform:
   - {fileID: 1576782713}
   - {fileID: 1524838152}
   m_Father: {fileID: 2073959086}
-  m_LocalEulerAnglesHint: {x: 0, y: 6.232471, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1084655684
 GameObject:
   m_ObjectHideFlags: 0
@@ -47767,6 +47767,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2073959086}
+  - component: {fileID: 2073959087}
   m_Layer: 0
   m_Name: Kid
   m_TagString: Untagged
@@ -47797,6 +47798,23 @@ Transform:
   - {fileID: 1083487646}
   m_Father: {fileID: 2077953255}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!111 &2073959087
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2073959085}
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Animation: {fileID: 7400000, guid: 3902d4499b678fd4eb6479bbb7965f77, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: 3902d4499b678fd4eb6479bbb7965f77, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 1
+  m_AnimatePhysics: 0
+  m_UpdateMode: 0
+  m_CullingType: 0
 --- !u!1 &2075168089
 GameObject:
   m_ObjectHideFlags: 0
