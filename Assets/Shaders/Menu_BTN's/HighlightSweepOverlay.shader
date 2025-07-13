@@ -1,18 +1,15 @@
-﻿Shader "URP/HighlightSweepOverlay_XY_FullControl"
+﻿Shader "URP/HighlightSweepOverlay_DirectionalControlled"
 {
     Properties
     {
         [HDR] _GlowColor ("Glow Color (HDR)", Color) = (10, 5, 1, 1)
 
-        _GlowSizeX ("Glow Size X", Range(0,1)) = 0.2
-        _GlowWidthX ("Glow Edge Softness X", Range(0.001, 0.5)) = 0.05
-        _GlowSpeedX ("Glow Speed X", Float) = 1.0
-        _AlphaX ("Alpha X", Range(0,1)) = 1.0
+        _GlowDir ("Glow Direction (X,Y)", Vector) = (1, 1, 0, 0)
 
-        _GlowSizeY ("Glow Size Y", Range(0,1)) = 0.2
-        _GlowWidthY ("Glow Edge Softness Y", Range(0.001, 0.5)) = 0.05
-        _GlowSpeedY ("Glow Speed Y", Float) = 1.0
-        _AlphaY ("Alpha Y", Range(0,1)) = 1.0
+        _GlowFrequency ("Glow Frequency", Range(0.1, 10.0)) = 1.0
+        _GlowWidth ("Glow Width", Range(0.001, 1.0)) = 0.2
+        _GlowSpeed ("Glow Speed", Float) = 1.0
+        _Alpha ("Alpha", Range(0, 1)) = 1.0
     }
 
     SubShader
@@ -41,18 +38,12 @@
                 float2 uv : TEXCOORD0;
             };
 
-            // Properties
             float4 _GlowColor;
-
-            float _GlowSizeX;
-            float _GlowWidthX;
-            float _GlowSpeedX;
-            float _AlphaX;
-
-            float _GlowSizeY;
-            float _GlowWidthY;
-            float _GlowSpeedY;
-            float _AlphaY;
+            float4 _GlowDir;
+            float _GlowFrequency;
+            float _GlowWidth;
+            float _GlowSpeed;
+            float _Alpha;
 
             Varyings vert (Attributes IN)
             {
@@ -65,26 +56,18 @@
             half4 frag (Varyings IN) : SV_Target
             {
                 float time = _Time.y;
+                float2 dir = normalize(_GlowDir.xy);
 
-                // -------------------------
-                // Glow X
-                float centerX = frac(time * _GlowSpeedX); // בין 0 ל-1
-                float minX = centerX - _GlowSizeX * 0.5;
-                float maxX = centerX + _GlowSizeX * 0.5;
-                float glowX = smoothstep(minX - _GlowWidthX, minX, IN.uv.x) * 
-                              (1.0 - smoothstep(maxX, maxX + _GlowWidthX, IN.uv.x)) * _AlphaX;
+                // הקרנה של UV לאורך הכיוון
+                float projection = dot(IN.uv, dir);
 
-                // -------------------------
-                // Glow Y
-                float centerY = frac(time * _GlowSpeedY);
-                float minY = centerY - _GlowSizeY * 0.5;
-                float maxY = centerY + _GlowSizeY * 0.5;
-                float glowY = smoothstep(minY - _GlowWidthY, minY, IN.uv.y) * 
-                              (1.0 - smoothstep(maxY, maxY + _GlowWidthY, IN.uv.y)) * _AlphaY;
+                // הגל: סינוס עם שליטה על תדירות (מרחק בין הפסים)
+                float wave = 0.5 + 0.5 * sin((projection - time * _GlowSpeed) * _GlowFrequency * 6.2831);
 
-                float totalGlow = glowX + glowY;
+                // טשטוש סביב מרכז הגל
+                float glow = smoothstep(0.5 - _GlowWidth, 0.5 + _GlowWidth, wave);
 
-                return float4(_GlowColor.rgb, totalGlow);
+                return float4(_GlowColor.rgb, glow * _Alpha);
             }
             ENDHLSL
         }
